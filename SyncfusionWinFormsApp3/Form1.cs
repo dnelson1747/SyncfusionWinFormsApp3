@@ -13,7 +13,7 @@ namespace SyncfusionWinFormsApp3
 {
     public partial class Form1 : Form
     {
-        
+
         public Form1()
         {
             InitializeComponent();
@@ -22,10 +22,10 @@ namespace SyncfusionWinFormsApp3
             string[] pdfFiles = Directory.GetFiles(directoryPath, "*.pdf");
 
             // Set the ListView control to Details view mode
-            listView1.View = View.Details;
+            listView.View = View.Details;
 
             // Add a column to the ListView control to display the file names
-            listView1.Columns.Add("File Name", 300);
+            listView.Columns.Add("File Name", 300);
 
             foreach (string pdfFile in pdfFiles)
             {
@@ -33,13 +33,13 @@ namespace SyncfusionWinFormsApp3
                 ListViewItem item = new ListViewItem(Path.GetFileName(pdfFile));
 
                 // Add the item to the ListView control
-                listView1.Items.Add(item);
+                listView.Items.Add(item);
             }
-            Form1_Load(this, EventArgs.Empty);
+            Load_Form(this, EventArgs.Empty);
         }
 
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void Load_Form(object sender, EventArgs e)
         {
             string directoryPath = @"C:\Users\djn\Downloads\EssentialStudio_CodeScanReports\";
             string[] pdfFiles = Directory.GetFiles(directoryPath, "*.pdf");
@@ -55,13 +55,13 @@ namespace SyncfusionWinFormsApp3
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
+
             string directoryPath = @"C:\Users\djn\Downloads\EssentialStudio_CodeScanReports\";
 
             {
-                if (listView1.SelectedItems.Count > 0)
+                if (listView.SelectedItems.Count > 0)
                 {
-                    string selectedFile = Path.Combine(directoryPath, listView1.SelectedItems[0].Text);
+                    string selectedFile = Path.Combine(directoryPath, listView.SelectedItems[0].Text);
                     pdfViewerControl1.Load(selectedFile);
                 }
             }
@@ -76,6 +76,5 @@ namespace SyncfusionWinFormsApp3
             }
         }
     }
-
 
 }
