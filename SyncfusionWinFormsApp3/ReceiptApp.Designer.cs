@@ -1,6 +1,6 @@
 ﻿namespace SyncfusionWinFormsApp3
 {
-    partial class Form1
+    partial class ReceiptApp
     {
         /// <summary>
         /// Required designer variable.
@@ -31,16 +31,24 @@
             components = new System.ComponentModel.Container();
             Syncfusion.Windows.Forms.PdfViewer.MessageBoxSettings messageBoxSettings2 = new Syncfusion.Windows.Forms.PdfViewer.MessageBoxSettings();
             Syncfusion.Windows.PdfViewer.PdfViewerPrinterSettings pdfViewerPrinterSettings2 = new Syncfusion.Windows.PdfViewer.PdfViewerPrinterSettings();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ReceiptApp));
             Syncfusion.Windows.Forms.PdfViewer.TextSearchSettings textSearchSettings2 = new Syncfusion.Windows.Forms.PdfViewer.TextSearchSettings();
             imageListAdv1 = new Syncfusion.Windows.Forms.Tools.ImageListAdv(components);
             listView = new ListView();
             pdfViewerControl1 = new Syncfusion.Windows.Forms.PdfViewer.PdfViewerControl();
+            lblDirectoryPath = new Label();
+            btnDirectoryPath = new Button();
+            btnSavedDirectory = new Button();
+            lblSavedDirectory = new Label();
+            cboUsername = new ComboBox();
+            lblUser = new Label();
+            cboEvent = new ComboBox();
+            lblEvent = new Label();
             SuspendLayout();
             // 
             // listView
             // 
-            listView.Location = new Point(12, 51);
+            listView.Location = new Point(12, 52);
             listView.Name = "listView";
             listView.Size = new Size(232, 408);
             listView.TabIndex = 0;
@@ -86,16 +94,96 @@
             pdfViewerControl1.VisualStyle = Syncfusion.Windows.Forms.PdfViewer.VisualStyle.Default;
             pdfViewerControl1.ZoomMode = Syncfusion.Windows.Forms.PdfViewer.ZoomMode.Default;
             // 
-            // Form1
+            // lblDirectoryPath
+            // 
+            lblDirectoryPath.AutoSize = true;
+            lblDirectoryPath.Location = new Point(95, 27);
+            lblDirectoryPath.Name = "lblDirectoryPath";
+            lblDirectoryPath.Size = new Size(24, 15);
+            lblDirectoryPath.TabIndex = 3;
+            lblDirectoryPath.Text = "NA";
+            // 
+            // btnDirectoryPath
+            // 
+            btnDirectoryPath.Location = new Point(21, 22);
+            btnDirectoryPath.Name = "btnDirectoryPath";
+            btnDirectoryPath.Size = new Size(68, 24);
+            btnDirectoryPath.TabIndex = 4;
+            btnDirectoryPath.Text = "Directory";
+            btnDirectoryPath.UseVisualStyleBackColor = true;
+            btnDirectoryPath.Click += btnDirectoryPath_Click;
+            // 
+            // btnSavedDirectory
+            // 
+            btnSavedDirectory.Location = new Point(537, 18);
+            btnSavedDirectory.Name = "btnSavedDirectory";
+            btnSavedDirectory.Size = new Size(68, 24);
+            btnSavedDirectory.TabIndex = 6;
+            btnSavedDirectory.Text = "Saved Directory";
+            btnSavedDirectory.UseVisualStyleBackColor = true;
+            // 
+            // lblSavedDirectory
+            // 
+            lblSavedDirectory.AutoSize = true;
+            lblSavedDirectory.Location = new Point(611, 23);
+            lblSavedDirectory.Name = "lblSavedDirectory";
+            lblSavedDirectory.Size = new Size(24, 15);
+            lblSavedDirectory.TabIndex = 5;
+            lblSavedDirectory.Text = "NA";
+            // 
+            // cboUsername
+            // 
+            cboUsername.FormattingEnabled = true;
+            cboUsername.Location = new Point(960, 20);
+            cboUsername.Name = "cboUsername";
+            cboUsername.Size = new Size(138, 23);
+            cboUsername.TabIndex = 7;
+            // 
+            // lblUser
+            // 
+            lblUser.AutoSize = true;
+            lblUser.Location = new Point(924, 23);
+            lblUser.Name = "lblUser";
+            lblUser.Size = new Size(30, 15);
+            lblUser.TabIndex = 8;
+            lblUser.Text = "User";
+            // 
+            // cboEvent
+            // 
+            cboEvent.FormattingEnabled = true;
+            cboEvent.Location = new Point(83, 497);
+            cboEvent.Name = "cboEvent";
+            cboEvent.Size = new Size(121, 23);
+            cboEvent.TabIndex = 9;
+            // 
+            // lblEvent
+            // 
+            lblEvent.AutoSize = true;
+            lblEvent.Location = new Point(41, 500);
+            lblEvent.Name = "lblEvent";
+            lblEvent.Size = new Size(36, 15);
+            lblEvent.TabIndex = 10;
+            lblEvent.Text = "Event";
+            // 
+            // ReceiptApp
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1127, 832);
+            Controls.Add(lblEvent);
+            Controls.Add(cboEvent);
+            Controls.Add(lblUser);
+            Controls.Add(cboUsername);
+            Controls.Add(btnSavedDirectory);
+            Controls.Add(lblSavedDirectory);
+            Controls.Add(btnDirectoryPath);
+            Controls.Add(lblDirectoryPath);
             Controls.Add(pdfViewerControl1);
             Controls.Add(listView);
-            Name = "Form1";
-            Text = "Form1";
+            Name = "ReceiptApp";
+            Text = "Receipt App";
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -103,6 +191,14 @@
         private Syncfusion.Windows.Forms.Tools.ImageListAdv imageListAdv1;
         private ListView listView;
         private Syncfusion.Windows.Forms.PdfViewer.PdfViewerControl pdfViewerControl1;
+        private Label lblDirectoryPath;
+        private Button btnDirectoryPath;
+        private Button btnSavedDirectory;
+        private Label lblSavedDirectory;
+        private ComboBox cboUsername;
+        private Label lblUser;
+        private ComboBox cboEvent;
+        private Label lblEvent;
     }
 }
 
