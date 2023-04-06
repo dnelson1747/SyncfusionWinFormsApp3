@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            Syncfusion.Windows.Forms.PdfViewer.MessageBoxSettings messageBoxSettings2 = new Syncfusion.Windows.Forms.PdfViewer.MessageBoxSettings();
-            Syncfusion.Windows.PdfViewer.PdfViewerPrinterSettings pdfViewerPrinterSettings2 = new Syncfusion.Windows.PdfViewer.PdfViewerPrinterSettings();
+            Syncfusion.Windows.Forms.PdfViewer.MessageBoxSettings messageBoxSettings1 = new Syncfusion.Windows.Forms.PdfViewer.MessageBoxSettings();
+            Syncfusion.Windows.PdfViewer.PdfViewerPrinterSettings pdfViewerPrinterSettings1 = new Syncfusion.Windows.PdfViewer.PdfViewerPrinterSettings();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ReceiptApp));
-            Syncfusion.Windows.Forms.PdfViewer.TextSearchSettings textSearchSettings2 = new Syncfusion.Windows.Forms.PdfViewer.TextSearchSettings();
+            Syncfusion.Windows.Forms.PdfViewer.TextSearchSettings textSearchSettings1 = new Syncfusion.Windows.Forms.PdfViewer.TextSearchSettings();
             imageListAdv1 = new Syncfusion.Windows.Forms.Tools.ImageListAdv(components);
             listView = new ListView();
             pdfViewerControl1 = new Syncfusion.Windows.Forms.PdfViewer.PdfViewerControl();
@@ -45,14 +45,7 @@
             cboEvents = new ComboBox();
             lblEvent = new Label();
             bannerTextProvider1 = new Syncfusion.Windows.Forms.BannerTextProvider(components);
-            UserManagementForm = new Syncfusion.Windows.Forms.PopupControlContainer(components);
             btnEditUser = new Button();
-            textBox1 = new TextBox();
-            lblPopupUser = new Label();
-            chkDefault = new CheckBox();
-            btnSaveUser = new Button();
-            btnCancel = new Button();
-            UserManagementForm.SuspendLayout();
             SuspendLayout();
             // 
             // listView
@@ -74,17 +67,17 @@
             pdfViewerControl1.IsTextSearchEnabled = true;
             pdfViewerControl1.IsTextSelectionEnabled = true;
             pdfViewerControl1.Location = new Point(250, 51);
-            messageBoxSettings2.EnableNotification = true;
-            pdfViewerControl1.MessageBoxSettings = messageBoxSettings2;
+            messageBoxSettings1.EnableNotification = true;
+            pdfViewerControl1.MessageBoxSettings = messageBoxSettings1;
             pdfViewerControl1.MinimumZoomPercentage = 50;
             pdfViewerControl1.Name = "pdfViewerControl1";
             pdfViewerControl1.PageBorderThickness = 1;
-            pdfViewerPrinterSettings2.Copies = 1;
-            pdfViewerPrinterSettings2.PageOrientation = Syncfusion.Windows.PdfViewer.PdfViewerPrintOrientation.Auto;
-            pdfViewerPrinterSettings2.PageSize = Syncfusion.Windows.PdfViewer.PdfViewerPrintSize.ActualSize;
-            pdfViewerPrinterSettings2.PrintLocation = (PointF)resources.GetObject("pdfViewerPrinterSettings2.PrintLocation");
-            pdfViewerPrinterSettings2.ShowPrintStatusDialog = true;
-            pdfViewerControl1.PrinterSettings = pdfViewerPrinterSettings2;
+            pdfViewerPrinterSettings1.Copies = 1;
+            pdfViewerPrinterSettings1.PageOrientation = Syncfusion.Windows.PdfViewer.PdfViewerPrintOrientation.Auto;
+            pdfViewerPrinterSettings1.PageSize = Syncfusion.Windows.PdfViewer.PdfViewerPrintSize.ActualSize;
+            pdfViewerPrinterSettings1.PrintLocation = (PointF)resources.GetObject("pdfViewerPrinterSettings1.PrintLocation");
+            pdfViewerPrinterSettings1.ShowPrintStatusDialog = true;
+            pdfViewerControl1.PrinterSettings = pdfViewerPrinterSettings1;
             pdfViewerControl1.ReferencePath = null;
             pdfViewerControl1.ScrollDisplacementValue = 0;
             pdfViewerControl1.ShowHorizontalScrollBar = true;
@@ -94,10 +87,10 @@
             pdfViewerControl1.SpaceBetweenPages = 8;
             pdfViewerControl1.TabIndex = 1;
             pdfViewerControl1.Text = "pdfViewerControl1";
-            textSearchSettings2.CurrentInstanceColor = Color.FromArgb(127, 255, 171, 64);
-            textSearchSettings2.HighlightAllInstance = true;
-            textSearchSettings2.OtherInstanceColor = Color.FromArgb(127, 254, 255, 0);
-            pdfViewerControl1.TextSearchSettings = textSearchSettings2;
+            textSearchSettings1.CurrentInstanceColor = Color.FromArgb(127, 255, 171, 64);
+            textSearchSettings1.HighlightAllInstance = true;
+            textSearchSettings1.OtherInstanceColor = Color.FromArgb(127, 254, 255, 0);
+            pdfViewerControl1.TextSearchSettings = textSearchSettings1;
             pdfViewerControl1.ThemeName = "Default";
             pdfViewerControl1.VerticalScrollOffset = 0;
             pdfViewerControl1.VisualStyle = Syncfusion.Windows.Forms.PdfViewer.VisualStyle.Default;
@@ -175,18 +168,6 @@
             lblEvent.TabIndex = 10;
             lblEvent.Text = "Event";
             // 
-            // UserManagementForm
-            // 
-            UserManagementForm.Controls.Add(btnCancel);
-            UserManagementForm.Controls.Add(btnSaveUser);
-            UserManagementForm.Controls.Add(chkDefault);
-            UserManagementForm.Controls.Add(lblPopupUser);
-            UserManagementForm.Controls.Add(textBox1);
-            UserManagementForm.Location = new Point(837, 52);
-            UserManagementForm.Name = "UserManagementForm";
-            UserManagementForm.Size = new Size(261, 128);
-            UserManagementForm.TabIndex = 11;
-            // 
             // btnEditUser
             // 
             btnEditUser.Location = new Point(1020, 19);
@@ -197,57 +178,12 @@
             btnEditUser.UseVisualStyleBackColor = true;
             btnEditUser.Click += btnEditUser_Click;
             // 
-            // textBox1
-            // 
-            textBox1.Location = new Point(87, 22);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(147, 23);
-            textBox1.TabIndex = 0;
-            // 
-            // lblPopupUser
-            // 
-            lblPopupUser.AutoSize = true;
-            lblPopupUser.Location = new Point(12, 30);
-            lblPopupUser.Name = "lblPopupUser";
-            lblPopupUser.Size = new Size(60, 15);
-            lblPopupUser.TabIndex = 1;
-            lblPopupUser.Text = "Username";
-            // 
-            // chkDefault
-            // 
-            chkDefault.AutoSize = true;
-            chkDefault.Location = new Point(87, 51);
-            chkDefault.Name = "chkDefault";
-            chkDefault.Size = new Size(97, 19);
-            chkDefault.TabIndex = 3;
-            chkDefault.Text = "Set as Default";
-            chkDefault.UseVisualStyleBackColor = true;
-            // 
-            // btnSaveUser
-            // 
-            btnSaveUser.Location = new Point(20, 81);
-            btnSaveUser.Name = "btnSaveUser";
-            btnSaveUser.Size = new Size(80, 25);
-            btnSaveUser.TabIndex = 4;
-            btnSaveUser.Text = "Save";
-            btnSaveUser.UseVisualStyleBackColor = true;
-            // 
-            // btnCancel
-            // 
-            btnCancel.Location = new Point(106, 81);
-            btnCancel.Name = "btnCancel";
-            btnCancel.Size = new Size(80, 25);
-            btnCancel.TabIndex = 5;
-            btnCancel.Text = "Cancel";
-            btnCancel.UseVisualStyleBackColor = true;
-            // 
             // ReceiptApp
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1127, 832);
             Controls.Add(btnEditUser);
-            Controls.Add(UserManagementForm);
             Controls.Add(lblEvent);
             Controls.Add(cboEvents);
             Controls.Add(lblUser);
@@ -260,8 +196,6 @@
             Controls.Add(listView);
             Name = "ReceiptApp";
             Text = "Receipt App";
-            UserManagementForm.ResumeLayout(false);
-            UserManagementForm.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -280,13 +214,7 @@
         private ComboBox cboEvents;
         private Label lblEvent;
         private Syncfusion.Windows.Forms.BannerTextProvider bannerTextProvider1;
-        private Syncfusion.Windows.Forms.PopupControlContainer UserManagementForm;
         private Button btnEditUser;
-        private Button btnCancel;
-        private Button btnSaveUser;
-        private CheckBox chkDefault;
-        private Label lblPopupUser;
-        private TextBox textBox1;
     }
 }
 
