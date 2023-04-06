@@ -10,6 +10,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using SyncfusionWinFormsApp3;
+
 
 namespace SyncfusionWinFormsApp3
 {
@@ -18,6 +20,7 @@ namespace SyncfusionWinFormsApp3
         private string directoryPath;
         private string outputDirectoryPath;
         private string connectionString = "Data Source=sphq-op-djn\\sqlexpress;Initial Catalog=Apps;Integrated Security=True";
+        //private ComboBox cboEvents;
 
         public ReceiptApp()
         {
@@ -31,8 +34,10 @@ namespace SyncfusionWinFormsApp3
 
             LoadUsernames();
             LoadPdfFiles();
+            LoadEvents();
             Load_Form(this, EventArgs.Empty);
             UpdateDirectoryPath();
+
         }
 
         private void LoadPdfFiles()
@@ -91,11 +96,8 @@ namespace SyncfusionWinFormsApp3
                 }
             }
         }
-
-
-
         private void Load_Form(object sender, EventArgs e)
-        {     
+        {
 
             // Load the PDF files from the directory path for the selected username
             string selectedUsername = cboUsername.SelectedItem?.ToString();
@@ -114,7 +116,7 @@ namespace SyncfusionWinFormsApp3
                     if (Directory.Exists(defaultDirectoryPath))
                     {
                         directoryPath = defaultDirectoryPath;
-                        LoadPdfFiles();                        
+                        LoadPdfFiles();
                     }
                     else
                     {
@@ -148,7 +150,6 @@ namespace SyncfusionWinFormsApp3
                 }
             }
         }
-
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -210,5 +211,95 @@ namespace SyncfusionWinFormsApp3
                 Load_Form(this, EventArgs.Empty);
             }
         }
+
+        public void LoadEvents()
+        {
+
+            // Load the events from the database
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string query = "SELECT EventID, EventName FROM Events";
+                SqlCommand command = new SqlCommand(query, connection);
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    int eventID = reader.GetInt32(0);
+                    string eventName = reader.GetString(1);
+                    cboEvents.Items.Add(new Events { EventID = eventID, EventName = eventName });
+                }
+            }
+
+            // Select the first event in the combo box
+            if (cboEvents.Items.Count > 0)
+            {
+                cboEvents.SelectedIndex = 0;
+            }
+        }
+
+
+        private void btnEditUser_Click(object sender, EventArgs e)
+        {
+            using (UserManagementForm userManagementForm = new UserManagementForm())
+            {
+                if (userManagementForm.ShowDialog() == DialogResult.OK)
+                {
+                    string newUsername = userManagementForm.NewUsername;
+                    bool setAsDefault = userManagementForm.SetAsDefault;
+
+                    // Check if the user exists in the database
+                    using (SqlConnection connection = new SqlConnection(connectionString))
+                    {
+                        connection.Open();
+                        string query = $"SELECT COUNT(*) FROM Users WHERE Username = '{newUsername}'";
+                        SqlCommand command = new SqlCommand(query, connection);
+                        int userCount = (int)command.ExecuteScalar();
+
+                        if (userCount == 0)
+                        {
+                            // Add the new user to the database
+                            query = $"INSERT INTO Users (Username) VALUES ('{newUsername}')";
+                            command = new SqlCommand(query, connection);
+                            command.ExecuteNonQuery();
+
+                            // Add the new user to the combo box
+                            int userID = GetUserId(newUsername);
+                            cboUsername.Items.Add(new Users(userID, newUsername));
+                        }
+                    }
+
+                    if (setAsDefault)
+                    {
+                        // Update the app.config with the new default username
+                        Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                        config.AppSettings.Settings["DefaultUsername"].Value = newUsername;
+                        config.Save(ConfigurationSaveMode.Modified);
+                        ConfigurationManager.RefreshSection("appSettings");
+
+                        // Update the combo box selection
+                        cboUsername.SelectedItem = cboUsername.Items.Cast<Users>().First(item => item.Username == newUsername);
+                    }
+                }
+            }
+        }
+
+        private int GetUserId(string username)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string query = $"SELECT UserID FROM Users WHERE Username = '{username}'";
+                SqlCommand command = new SqlCommand(query, connection);
+                int userId = (int)command.ExecuteScalar();
+                return userId;
+            }
+        }
+
     }
+
 }
+
+
+
+
+

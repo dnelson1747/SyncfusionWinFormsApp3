@@ -42,8 +42,17 @@
             lblSavedDirectory = new Label();
             cboUsername = new ComboBox();
             lblUser = new Label();
-            cboEvent = new ComboBox();
+            cboEvents = new ComboBox();
             lblEvent = new Label();
+            bannerTextProvider1 = new Syncfusion.Windows.Forms.BannerTextProvider(components);
+            UserManagementForm = new Syncfusion.Windows.Forms.PopupControlContainer(components);
+            btnEditUser = new Button();
+            textBox1 = new TextBox();
+            lblPopupUser = new Label();
+            chkDefault = new CheckBox();
+            btnSaveUser = new Button();
+            btnCancel = new Button();
+            UserManagementForm.SuspendLayout();
             SuspendLayout();
             // 
             // listView
@@ -115,7 +124,7 @@
             // 
             // btnSavedDirectory
             // 
-            btnSavedDirectory.Location = new Point(537, 18);
+            btnSavedDirectory.Location = new Point(432, 18);
             btnSavedDirectory.Name = "btnSavedDirectory";
             btnSavedDirectory.Size = new Size(68, 24);
             btnSavedDirectory.TabIndex = 6;
@@ -125,7 +134,7 @@
             // lblSavedDirectory
             // 
             lblSavedDirectory.AutoSize = true;
-            lblSavedDirectory.Location = new Point(611, 23);
+            lblSavedDirectory.Location = new Point(506, 23);
             lblSavedDirectory.Name = "lblSavedDirectory";
             lblSavedDirectory.Size = new Size(24, 15);
             lblSavedDirectory.TabIndex = 5;
@@ -134,7 +143,7 @@
             // cboUsername
             // 
             cboUsername.FormattingEnabled = true;
-            cboUsername.Location = new Point(960, 20);
+            cboUsername.Location = new Point(873, 19);
             cboUsername.Name = "cboUsername";
             cboUsername.Size = new Size(138, 23);
             cboUsername.TabIndex = 7;
@@ -142,19 +151,20 @@
             // lblUser
             // 
             lblUser.AutoSize = true;
-            lblUser.Location = new Point(924, 23);
+            lblUser.Location = new Point(837, 22);
             lblUser.Name = "lblUser";
             lblUser.Size = new Size(30, 15);
             lblUser.TabIndex = 8;
             lblUser.Text = "User";
             // 
-            // cboEvent
+            // cboEvents
             // 
-            cboEvent.FormattingEnabled = true;
-            cboEvent.Location = new Point(83, 497);
-            cboEvent.Name = "cboEvent";
-            cboEvent.Size = new Size(121, 23);
-            cboEvent.TabIndex = 9;
+            cboEvents.FormattingEnabled = true;
+            cboEvents.Location = new Point(83, 497);
+            cboEvents.Name = "cboEvents";
+            cboEvents.Size = new Size(121, 23);
+            cboEvents.TabIndex = 9;
+            cboEvents.Text = "Empty";
             // 
             // lblEvent
             // 
@@ -165,13 +175,81 @@
             lblEvent.TabIndex = 10;
             lblEvent.Text = "Event";
             // 
+            // UserManagementForm
+            // 
+            UserManagementForm.Controls.Add(btnCancel);
+            UserManagementForm.Controls.Add(btnSaveUser);
+            UserManagementForm.Controls.Add(chkDefault);
+            UserManagementForm.Controls.Add(lblPopupUser);
+            UserManagementForm.Controls.Add(textBox1);
+            UserManagementForm.Location = new Point(837, 52);
+            UserManagementForm.Name = "UserManagementForm";
+            UserManagementForm.Size = new Size(261, 128);
+            UserManagementForm.TabIndex = 11;
+            // 
+            // btnEditUser
+            // 
+            btnEditUser.Location = new Point(1020, 19);
+            btnEditUser.Name = "btnEditUser";
+            btnEditUser.Size = new Size(78, 25);
+            btnEditUser.TabIndex = 12;
+            btnEditUser.Text = "Edit User";
+            btnEditUser.UseVisualStyleBackColor = true;
+            btnEditUser.Click += btnEditUser_Click;
+            // 
+            // textBox1
+            // 
+            textBox1.Location = new Point(87, 22);
+            textBox1.Name = "textBox1";
+            textBox1.Size = new Size(147, 23);
+            textBox1.TabIndex = 0;
+            // 
+            // lblPopupUser
+            // 
+            lblPopupUser.AutoSize = true;
+            lblPopupUser.Location = new Point(12, 30);
+            lblPopupUser.Name = "lblPopupUser";
+            lblPopupUser.Size = new Size(60, 15);
+            lblPopupUser.TabIndex = 1;
+            lblPopupUser.Text = "Username";
+            // 
+            // chkDefault
+            // 
+            chkDefault.AutoSize = true;
+            chkDefault.Location = new Point(87, 51);
+            chkDefault.Name = "chkDefault";
+            chkDefault.Size = new Size(97, 19);
+            chkDefault.TabIndex = 3;
+            chkDefault.Text = "Set as Default";
+            chkDefault.UseVisualStyleBackColor = true;
+            // 
+            // btnSaveUser
+            // 
+            btnSaveUser.Location = new Point(20, 81);
+            btnSaveUser.Name = "btnSaveUser";
+            btnSaveUser.Size = new Size(80, 25);
+            btnSaveUser.TabIndex = 4;
+            btnSaveUser.Text = "Save";
+            btnSaveUser.UseVisualStyleBackColor = true;
+            // 
+            // btnCancel
+            // 
+            btnCancel.Location = new Point(106, 81);
+            btnCancel.Name = "btnCancel";
+            btnCancel.Size = new Size(80, 25);
+            btnCancel.TabIndex = 5;
+            btnCancel.Text = "Cancel";
+            btnCancel.UseVisualStyleBackColor = true;
+            // 
             // ReceiptApp
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1127, 832);
+            Controls.Add(btnEditUser);
+            Controls.Add(UserManagementForm);
             Controls.Add(lblEvent);
-            Controls.Add(cboEvent);
+            Controls.Add(cboEvents);
             Controls.Add(lblUser);
             Controls.Add(cboUsername);
             Controls.Add(btnSavedDirectory);
@@ -182,6 +260,8 @@
             Controls.Add(listView);
             Name = "ReceiptApp";
             Text = "Receipt App";
+            UserManagementForm.ResumeLayout(false);
+            UserManagementForm.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -197,8 +277,16 @@
         private Label lblSavedDirectory;
         private ComboBox cboUsername;
         private Label lblUser;
-        private ComboBox cboEvent;
+        private ComboBox cboEvents;
         private Label lblEvent;
+        private Syncfusion.Windows.Forms.BannerTextProvider bannerTextProvider1;
+        private Syncfusion.Windows.Forms.PopupControlContainer UserManagementForm;
+        private Button btnEditUser;
+        private Button btnCancel;
+        private Button btnSaveUser;
+        private CheckBox chkDefault;
+        private Label lblPopupUser;
+        private TextBox textBox1;
     }
 }
 
