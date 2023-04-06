@@ -144,7 +144,7 @@
             // lblUser
             // 
             lblUser.AutoSize = true;
-            lblUser.Location = new Point(837, 22);
+            lblUser.Location = new Point(796, 22);
             lblUser.Name = "lblUser";
             lblUser.Size = new Size(30, 15);
             lblUser.TabIndex = 8;

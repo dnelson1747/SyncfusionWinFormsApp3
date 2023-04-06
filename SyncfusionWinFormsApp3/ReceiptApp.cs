@@ -20,10 +20,11 @@ namespace SyncfusionWinFormsApp3
         private string directoryPath;
         private string outputDirectoryPath;
         private string connectionString = "Data Source=sphq-op-djn\\sqlexpress;Initial Catalog=Apps;Integrated Security=True";
-        //private ComboBox cboEvents;
+
 
         public ReceiptApp()
         {
+
             InitializeComponent();
 
             // Set the ListView control to Details view mode
@@ -38,16 +39,18 @@ namespace SyncfusionWinFormsApp3
             Load_Form(this, EventArgs.Empty);
             UpdateDirectoryPath();
 
+            cboUsername.DrawItem += CboUsername_DrawItem;
+            this.Controls.Add(cboUsername);
         }
+
 
         private void LoadPdfFiles()
         {
             // Check whether the directory path exists
             if (!Directory.Exists(directoryPath))
             {
-                // Handle the case where the directory does not exist
-                // For example, you could show an error message and exit the method
-                MessageBox.Show($"Directory '{directoryPath}' does not exist.");
+
+                Console.WriteLine($"Directory '{directoryPath}' does not exist.");
                 return;
             }
 
@@ -64,9 +67,12 @@ namespace SyncfusionWinFormsApp3
             }
         }
 
-
         private void LoadUsernames()
         {
+            cboUsername.DrawMode = DrawMode.OwnerDrawFixed;
+            cboUsername.SelectedIndexChanged += CboUsername_SelectedIndexChanged;
+
+
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
@@ -81,7 +87,6 @@ namespace SyncfusionWinFormsApp3
                 }
             }
 
-            // Set the default selected username to "Dave" if it exists in the combo box,
             // otherwise set it to the first username in the combo box
             string defaultUsername = ConfigurationManager.AppSettings["DefaultUsername"];
             if (cboUsername.Items.Count > 0)
@@ -89,13 +94,18 @@ namespace SyncfusionWinFormsApp3
                 if (cboUsername.Items.Cast<Users>().Any(item => item.Username == defaultUsername))
                 {
                     cboUsername.SelectedItem = cboUsername.Items.Cast<Users>().First(item => item.Username == defaultUsername);
+                    lblUser.Text = "Default User";
+                    lblUser.ForeColor = Color.Green;
                 }
                 else
                 {
                     cboUsername.SelectedIndex = 0;
                 }
             }
+            cboUsername.DrawItem += CboUsername_DrawItem;
         }
+
+
         private void Load_Form(object sender, EventArgs e)
         {
 
@@ -120,7 +130,7 @@ namespace SyncfusionWinFormsApp3
                     }
                     else
                     {
-                        MessageBox.Show($"Directory '{defaultDirectoryPath}' does not exist.");
+                        Console.WriteLine($"Directory '{defaultDirectoryPath}' does not exist.");
                     }
                 }
 
@@ -187,16 +197,15 @@ namespace SyncfusionWinFormsApp3
                     int rowsAffected = command.ExecuteNonQuery();
                     if (rowsAffected > 0)
                     {
-                        MessageBox.Show($"Directory path updated for user '{username}'");
+                        Console.WriteLine($"Directory path updated for user '{username}'");
                     }
                     else
                     {
-                        MessageBox.Show($"Failed to update directory path for user '{username}'");
+                        Console.WriteLine($"Failed to update directory path for user '{username}'");
                     }
                 }
             }
         }
-
 
         private void btnDirectoryPath_Click(object sender, EventArgs e)
         {
@@ -294,12 +303,62 @@ namespace SyncfusionWinFormsApp3
                 return userId;
             }
         }
+        private void CboUsername_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0)
+            {
+                return;
+            }
+
+            e.DrawBackground();
+
+            Users user = (Users)cboUsername.Items[e.Index];
+            string defaultUsername = ConfigurationManager.AppSettings["DefaultUsername"];
+            Brush brush = (user.Username == defaultUsername) ? Brushes.DarkMagenta : Brushes.Black;
+
+            e.Graphics.DrawString(user.ToString(), e.Font, brush, e.Bounds);
+
+            e.DrawFocusRectangle();
+        }
+        private void CboUsername_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string selectedUsername = cboUsername.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(selectedUsername)) return;
+
+            string defaultUsername = ConfigurationManager.AppSettings["DefaultUsername"];
+            if (selectedUsername == defaultUsername)
+            {
+                lblUser.Text = "Default User";
+                lblUser.ForeColor = Color.Green;
+            }
+            else
+            {
+                lblUser.Text = "User";
+                lblUser.ForeColor = Color.Black;
+            }
+
+            // Retrieve the directoryPath and outputDirectoryPath for the selected user from the database
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string query = $"SELECT DefaultDirectoryPath, OutputDirectoryPath FROM Users WHERE Username = '{selectedUsername}'";
+                SqlCommand command = new SqlCommand(query, connection);
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    directoryPath = !reader.IsDBNull(0) ? reader.GetString(0) : null;
+                    outputDirectoryPath = !reader.IsDBNull(1) ? reader.GetString(1) : null;
+                }
+            }
+
+            // Load the PDF files for the newly selected user
+            listView.Items.Clear();
+            if (!string.IsNullOrEmpty(directoryPath))
+            {
+                LoadPdfFiles();
+            }
+        }
 
     }
-
 }
-
-
-
-
-
