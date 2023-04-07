@@ -136,7 +136,7 @@
             // cboUsername
             // 
             cboUsername.FormattingEnabled = true;
-            cboUsername.Location = new Point(873, 19);
+            cboUsername.Location = new Point(873, 24);
             cboUsername.Name = "cboUsername";
             cboUsername.Size = new Size(138, 23);
             cboUsername.TabIndex = 7;
@@ -144,7 +144,7 @@
             // lblUser
             // 
             lblUser.AutoSize = true;
-            lblUser.Location = new Point(796, 22);
+            lblUser.Location = new Point(873, 6);
             lblUser.Name = "lblUser";
             lblUser.Size = new Size(30, 15);
             lblUser.TabIndex = 8;
@@ -170,7 +170,7 @@
             // 
             // btnEditUser
             // 
-            btnEditUser.Location = new Point(1020, 19);
+            btnEditUser.Location = new Point(1020, 24);
             btnEditUser.Name = "btnEditUser";
             btnEditUser.Size = new Size(78, 25);
             btnEditUser.TabIndex = 12;

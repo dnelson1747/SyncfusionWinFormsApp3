@@ -195,14 +195,14 @@ namespace SyncfusionWinFormsApp3
 
                     SqlCommand command = new SqlCommand(query, connection);
                     int rowsAffected = command.ExecuteNonQuery();
-                    if (rowsAffected > 0)
-                    {
-                        Console.WriteLine($"Directory path updated for user '{username}'");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Failed to update directory path for user '{username}'");
-                    }
+                    //if (rowsAffected > 0)
+                    //{
+                    //    Console.WriteLine($"Directory path updated for user '{username}'");
+                    //}
+                    //else
+                    //{
+                    //    Console.WriteLine($"Failed to update directory path for user '{username}'");
+                    //}
                 }
             }
         }
@@ -314,7 +314,7 @@ namespace SyncfusionWinFormsApp3
 
             Users user = (Users)cboUsername.Items[e.Index];
             string defaultUsername = ConfigurationManager.AppSettings["DefaultUsername"];
-            Brush brush = (user.Username == defaultUsername) ? Brushes.DarkMagenta : Brushes.Black;
+            Brush brush = (user.Username == defaultUsername) ? Brushes.Aqua : Brushes.Black;
 
             e.Graphics.DrawString(user.ToString(), e.Font, brush, e.Bounds);
 
@@ -352,6 +352,10 @@ namespace SyncfusionWinFormsApp3
                 }
             }
 
+            // Update the labels with the new directory paths
+            lblDirectoryPath.Text = directoryPath;
+            lblSavedDirectory.Text = outputDirectoryPath;
+
             // Load the PDF files for the newly selected user
             listView.Items.Clear();
             if (!string.IsNullOrEmpty(directoryPath))
@@ -359,6 +363,7 @@ namespace SyncfusionWinFormsApp3
                 LoadPdfFiles();
             }
         }
+
 
     }
 }
