@@ -20,8 +20,7 @@ namespace SyncfusionWinFormsApp3
         private string directoryPath;
         private string outputDirectoryPath;
         private string connectionString = "Data Source=sphq-op-djn\\sqlexpress;Initial Catalog=Apps;Integrated Security=True";
-
-
+        
         public ReceiptApp()
         {
 
@@ -71,6 +70,7 @@ namespace SyncfusionWinFormsApp3
         {
             cboUsername.DrawMode = DrawMode.OwnerDrawFixed;
             cboUsername.SelectedIndexChanged += CboUsername_SelectedIndexChanged;
+            cboUsername.Items.Clear();
 
 
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -83,7 +83,11 @@ namespace SyncfusionWinFormsApp3
                 {
                     int userID = reader.GetInt32(0);
                     string username = reader.GetString(1);
-                    cboUsername.Items.Add(new Users(userID, username));
+                    // Check if the user is already in the combo box
+                    if (!cboUsername.Items.Cast<Users>().Any(item => item.Username == username))
+                    {
+                        cboUsername.Items.Add(new Users(userID, username));
+                    }
                 }
             }
 
@@ -101,8 +105,7 @@ namespace SyncfusionWinFormsApp3
                 {
                     cboUsername.SelectedIndex = 0;
                 }
-            }
-            cboUsername.DrawItem += CboUsername_DrawItem;
+            }            
         }
 
 
@@ -195,14 +198,6 @@ namespace SyncfusionWinFormsApp3
 
                     SqlCommand command = new SqlCommand(query, connection);
                     int rowsAffected = command.ExecuteNonQuery();
-                    //if (rowsAffected > 0)
-                    //{
-                    //    Console.WriteLine($"Directory path updated for user '{username}'");
-                    //}
-                    //else
-                    //{
-                    //    Console.WriteLine($"Failed to update directory path for user '{username}'");
-                    //}
                 }
             }
         }
@@ -249,33 +244,22 @@ namespace SyncfusionWinFormsApp3
 
         private void btnEditUser_Click(object sender, EventArgs e)
         {
-            using (UserManagementForm userManagementForm = new UserManagementForm())
+            List<Users> users = cboUsername.Items.Cast<Users>().ToList();
+            Users selectedUser = cboUsername.SelectedItem as Users;
+
+            using (UserManagementForm userManagementForm = new UserManagementForm(connectionString, users, selectedUser, LoadUsernames))
             {
+                // Subscribe to the UserSaved event
+                userManagementForm.UserSaved += (s, ev) => {
+                    MessageBox.Show("UserSaved event received, calling LoadUsernames...");
+                    LoadUsernames();
+                };
+
                 if (userManagementForm.ShowDialog() == DialogResult.OK)
                 {
+                    LoadUsernames();
                     string newUsername = userManagementForm.NewUsername;
                     bool setAsDefault = userManagementForm.SetAsDefault;
-
-                    // Check if the user exists in the database
-                    using (SqlConnection connection = new SqlConnection(connectionString))
-                    {
-                        connection.Open();
-                        string query = $"SELECT COUNT(*) FROM Users WHERE Username = '{newUsername}'";
-                        SqlCommand command = new SqlCommand(query, connection);
-                        int userCount = (int)command.ExecuteScalar();
-
-                        if (userCount == 0)
-                        {
-                            // Add the new user to the database
-                            query = $"INSERT INTO Users (Username) VALUES ('{newUsername}')";
-                            command = new SqlCommand(query, connection);
-                            command.ExecuteNonQuery();
-
-                            // Add the new user to the combo box
-                            int userID = GetUserId(newUsername);
-                            cboUsername.Items.Add(new Users(userID, newUsername));
-                        }
-                    }
 
                     if (setAsDefault)
                     {
@@ -294,6 +278,7 @@ namespace SyncfusionWinFormsApp3
 
         private int GetUserId(string username)
         {
+           
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
@@ -363,7 +348,5 @@ namespace SyncfusionWinFormsApp3
                 LoadPdfFiles();
             }
         }
-
-
     }
 }

@@ -50,7 +50,7 @@
             // 
             // listView
             // 
-            listView.Location = new Point(12, 52);
+            listView.Location = new Point(861, 68);
             listView.Name = "listView";
             listView.Size = new Size(232, 408);
             listView.TabIndex = 0;
@@ -66,7 +66,7 @@
             pdfViewerControl1.IsBookmarkEnabled = true;
             pdfViewerControl1.IsTextSearchEnabled = true;
             pdfViewerControl1.IsTextSelectionEnabled = true;
-            pdfViewerControl1.Location = new Point(250, 51);
+            pdfViewerControl1.Location = new Point(21, 68);
             messageBoxSettings1.EnableNotification = true;
             pdfViewerControl1.MessageBoxSettings = messageBoxSettings1;
             pdfViewerControl1.MinimumZoomPercentage = 50;
@@ -83,7 +83,7 @@
             pdfViewerControl1.ShowHorizontalScrollBar = true;
             pdfViewerControl1.ShowToolBar = true;
             pdfViewerControl1.ShowVerticalScrollBar = true;
-            pdfViewerControl1.Size = new Size(848, 588);
+            pdfViewerControl1.Size = new Size(817, 548);
             pdfViewerControl1.SpaceBetweenPages = 8;
             pdfViewerControl1.TabIndex = 1;
             pdfViewerControl1.Text = "pdfViewerControl1";
@@ -99,7 +99,7 @@
             // lblDirectoryPath
             // 
             lblDirectoryPath.AutoSize = true;
-            lblDirectoryPath.Location = new Point(95, 27);
+            lblDirectoryPath.Location = new Point(351, 31);
             lblDirectoryPath.Name = "lblDirectoryPath";
             lblDirectoryPath.Size = new Size(24, 15);
             lblDirectoryPath.TabIndex = 3;
@@ -107,7 +107,7 @@
             // 
             // btnDirectoryPath
             // 
-            btnDirectoryPath.Location = new Point(21, 22);
+            btnDirectoryPath.Location = new Point(277, 23);
             btnDirectoryPath.Name = "btnDirectoryPath";
             btnDirectoryPath.Size = new Size(68, 24);
             btnDirectoryPath.TabIndex = 4;
@@ -117,7 +117,7 @@
             // 
             // btnSavedDirectory
             // 
-            btnSavedDirectory.Location = new Point(432, 18);
+            btnSavedDirectory.Location = new Point(682, 26);
             btnSavedDirectory.Name = "btnSavedDirectory";
             btnSavedDirectory.Size = new Size(68, 24);
             btnSavedDirectory.TabIndex = 6;
@@ -127,7 +127,7 @@
             // lblSavedDirectory
             // 
             lblSavedDirectory.AutoSize = true;
-            lblSavedDirectory.Location = new Point(506, 23);
+            lblSavedDirectory.Location = new Point(756, 31);
             lblSavedDirectory.Name = "lblSavedDirectory";
             lblSavedDirectory.Size = new Size(24, 15);
             lblSavedDirectory.TabIndex = 5;
@@ -136,7 +136,7 @@
             // cboUsername
             // 
             cboUsername.FormattingEnabled = true;
-            cboUsername.Location = new Point(873, 24);
+            cboUsername.Location = new Point(21, 23);
             cboUsername.Name = "cboUsername";
             cboUsername.Size = new Size(138, 23);
             cboUsername.TabIndex = 7;
@@ -144,7 +144,7 @@
             // lblUser
             // 
             lblUser.AutoSize = true;
-            lblUser.Location = new Point(873, 6);
+            lblUser.Location = new Point(21, 5);
             lblUser.Name = "lblUser";
             lblUser.Size = new Size(30, 15);
             lblUser.TabIndex = 8;
@@ -153,7 +153,7 @@
             // cboEvents
             // 
             cboEvents.FormattingEnabled = true;
-            cboEvents.Location = new Point(83, 497);
+            cboEvents.Location = new Point(972, 486);
             cboEvents.Name = "cboEvents";
             cboEvents.Size = new Size(121, 23);
             cboEvents.TabIndex = 9;
@@ -162,7 +162,7 @@
             // lblEvent
             // 
             lblEvent.AutoSize = true;
-            lblEvent.Location = new Point(41, 500);
+            lblEvent.Location = new Point(930, 489);
             lblEvent.Name = "lblEvent";
             lblEvent.Size = new Size(36, 15);
             lblEvent.TabIndex = 10;
@@ -170,7 +170,7 @@
             // 
             // btnEditUser
             // 
-            btnEditUser.Location = new Point(1020, 24);
+            btnEditUser.Location = new Point(165, 22);
             btnEditUser.Name = "btnEditUser";
             btnEditUser.Size = new Size(78, 25);
             btnEditUser.TabIndex = 12;
