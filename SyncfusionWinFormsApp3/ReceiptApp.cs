@@ -20,7 +20,7 @@ namespace SyncfusionWinFormsApp3
         private string directoryPath;
         private string outputDirectoryPath;
         private string connectionString = "Data Source=sphq-op-djn\\sqlexpress;Initial Catalog=Apps;Integrated Security=True";
-        
+
         public ReceiptApp()
         {
 
@@ -64,6 +64,13 @@ namespace SyncfusionWinFormsApp3
                 // Add the item to the ListView control
                 listView.Items.Add(item);
             }
+
+            foreach (string pdfFile in pdfFiles)
+            {
+                ListViewItem item = new ListViewItem(Path.GetFileName(pdfFile));
+                item.Tag = false; // Add this line, false means data has not been entered yet
+                listView.Items.Add(item);
+            }
         }
 
         private void LoadUsernames()
@@ -105,7 +112,7 @@ namespace SyncfusionWinFormsApp3
                 {
                     cboUsername.SelectedIndex = 0;
                 }
-            }            
+            }
         }
 
 
@@ -184,6 +191,7 @@ namespace SyncfusionWinFormsApp3
         private void UpdateDirectoryPath()
         {
             lblDirectoryPath.Text = directoryPath;
+            lblSavedDirectory.Text = outputDirectoryPath;
 
             // Check if a username was selected
             if (!string.IsNullOrEmpty(cboUsername.Text))
@@ -194,7 +202,7 @@ namespace SyncfusionWinFormsApp3
                     connection.Open();
 
                     string username = cboUsername.Text;
-                    string query = $"UPDATE Users SET DefaultDirectoryPath = '{directoryPath}' WHERE Username = '{username}'";
+                    string query = $"UPDATE Users SET DefaultDirectoryPath = '{directoryPath}', OutputDirectoryPath = '{outputDirectoryPath}' WHERE Username = '{username}'";
 
                     SqlCommand command = new SqlCommand(query, connection);
                     int rowsAffected = command.ExecuteNonQuery();
@@ -250,8 +258,9 @@ namespace SyncfusionWinFormsApp3
             using (UserManagementForm userManagementForm = new UserManagementForm(connectionString, users, selectedUser, LoadUsernames))
             {
                 // Subscribe to the UserSaved event
-                userManagementForm.UserSaved += (s, ev) => {
-                    MessageBox.Show("UserSaved event received, calling LoadUsernames...");
+                userManagementForm.UserSaved += (s, ev) =>
+                {
+                    //MessageBox.Show("UserSaved event received, calling LoadUsernames()...");
                     LoadUsernames();
                 };
 
@@ -276,18 +285,6 @@ namespace SyncfusionWinFormsApp3
             }
         }
 
-        private int GetUserId(string username)
-        {
-           
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-                string query = $"SELECT UserID FROM Users WHERE Username = '{username}'";
-                SqlCommand command = new SqlCommand(query, connection);
-                int userId = (int)command.ExecuteScalar();
-                return userId;
-            }
-        }
         private void CboUsername_DrawItem(object sender, DrawItemEventArgs e)
         {
             if (e.Index < 0)
@@ -346,6 +343,18 @@ namespace SyncfusionWinFormsApp3
             if (!string.IsNullOrEmpty(directoryPath))
             {
                 LoadPdfFiles();
+            }
+        }
+
+        private void btnSavedDirectory_Click(object sender, EventArgs e)
+        {
+            var folderDialog = new FolderBrowserDialog();
+
+            if (folderDialog.ShowDialog() == DialogResult.OK)
+            {
+                outputDirectoryPath = folderDialog.SelectedPath;                              
+                UpdateDirectoryPath();
+                Load_Form(this, EventArgs.Empty);
             }
         }
     }

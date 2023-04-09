@@ -123,6 +123,7 @@
             btnSavedDirectory.TabIndex = 6;
             btnSavedDirectory.Text = "Saved Directory";
             btnSavedDirectory.UseVisualStyleBackColor = true;
+            btnSavedDirectory.Click += btnSavedDirectory_Click;
             // 
             // lblSavedDirectory
             // 
