@@ -46,6 +46,33 @@
             lblEvent = new Label();
             bannerTextProvider1 = new Syncfusion.Windows.Forms.BannerTextProvider(components);
             btnEditUser = new Button();
+            lblAmount = new Label();
+            txtAmount = new TextBox();
+            lblCity = new Label();
+            lblState = new Label();
+            lblZip = new Label();
+            lblAddress = new Label();
+            txtVendor = new TextBox();
+            lblVendor = new Label();
+            txtCategory = new TextBox();
+            lblCategory = new Label();
+            txtDescription = new TextBox();
+            lblDescription = new Label();
+            dateTimePicker1 = new DateTimePicker();
+            lblDate = new Label();
+            lblAudio = new Label();
+            txtAudio = new TextBox();
+            txtVideo = new TextBox();
+            lblVideo = new Label();
+            txtRent = new TextBox();
+            lblRent = new Label();
+            txtLabor = new TextBox();
+            lblLabor = new Label();
+            btnPrevious = new Button();
+            btnNext = new Button();
+            btnSaveNext = new Button();
+            btnSaveRepeat = new Button();
+            btnSubmitBatch = new Button();
             SuspendLayout();
             // 
             // listView
@@ -179,11 +206,264 @@
             btnEditUser.UseVisualStyleBackColor = true;
             btnEditUser.Click += btnEditUser_Click;
             // 
+            // lblAmount
+            // 
+            lblAmount.AutoSize = true;
+            lblAmount.Location = new Point(549, 758);
+            lblAmount.Name = "lblAmount";
+            lblAmount.Size = new Size(51, 15);
+            lblAmount.TabIndex = 13;
+            lblAmount.Text = "Amount";
+            // 
+            // txtAmount
+            // 
+            txtAmount.Location = new Point(606, 755);
+            txtAmount.Name = "txtAmount";
+            txtAmount.Size = new Size(123, 23);
+            txtAmount.TabIndex = 14;
+            // 
+            // lblCity
+            // 
+            lblCity.AutoSize = true;
+            lblCity.Location = new Point(882, 543);
+            lblCity.Name = "lblCity";
+            lblCity.Size = new Size(28, 15);
+            lblCity.TabIndex = 15;
+            lblCity.Text = "City";
+            // 
+            // lblState
+            // 
+            lblState.AutoSize = true;
+            lblState.Location = new Point(991, 543);
+            lblState.Name = "lblState";
+            lblState.Size = new Size(33, 15);
+            lblState.TabIndex = 16;
+            lblState.Text = "State";
+            // 
+            // lblZip
+            // 
+            lblZip.AutoSize = true;
+            lblZip.Location = new Point(1059, 543);
+            lblZip.Name = "lblZip";
+            lblZip.Size = new Size(24, 15);
+            lblZip.TabIndex = 17;
+            lblZip.Text = "Zip";
+            // 
+            // lblAddress
+            // 
+            lblAddress.AutoSize = true;
+            lblAddress.Location = new Point(882, 518);
+            lblAddress.Name = "lblAddress";
+            lblAddress.Size = new Size(49, 15);
+            lblAddress.TabIndex = 18;
+            lblAddress.Text = "Address";
+            // 
+            // txtVendor
+            // 
+            txtVendor.Location = new Point(384, 665);
+            txtVendor.Name = "txtVendor";
+            txtVendor.Size = new Size(123, 23);
+            txtVendor.TabIndex = 20;
+            // 
+            // lblVendor
+            // 
+            lblVendor.AutoSize = true;
+            lblVendor.Location = new Point(327, 668);
+            lblVendor.Name = "lblVendor";
+            lblVendor.Size = new Size(44, 15);
+            lblVendor.TabIndex = 19;
+            lblVendor.Text = "Vendor";
+            // 
+            // txtCategory
+            // 
+            txtCategory.Location = new Point(120, 710);
+            txtCategory.Name = "txtCategory";
+            txtCategory.Size = new Size(123, 23);
+            txtCategory.TabIndex = 22;
+            // 
+            // lblCategory
+            // 
+            lblCategory.AutoSize = true;
+            lblCategory.Location = new Point(63, 713);
+            lblCategory.Name = "lblCategory";
+            lblCategory.Size = new Size(55, 15);
+            lblCategory.TabIndex = 21;
+            lblCategory.Text = "Category";
+            // 
+            // txtDescription
+            // 
+            txtDescription.Location = new Point(606, 665);
+            txtDescription.Name = "txtDescription";
+            txtDescription.Size = new Size(123, 23);
+            txtDescription.TabIndex = 24;
+            // 
+            // lblDescription
+            // 
+            lblDescription.AutoSize = true;
+            lblDescription.Location = new Point(533, 668);
+            lblDescription.Name = "lblDescription";
+            lblDescription.Size = new Size(67, 15);
+            lblDescription.TabIndex = 23;
+            lblDescription.Text = "Description";
+            // 
+            // dateTimePicker1
+            // 
+            dateTimePicker1.Location = new Point(99, 665);
+            dateTimePicker1.Name = "dateTimePicker1";
+            dateTimePicker1.Size = new Size(211, 23);
+            dateTimePicker1.TabIndex = 25;
+            // 
+            // lblDate
+            // 
+            lblDate.AutoSize = true;
+            lblDate.Location = new Point(62, 671);
+            lblDate.Name = "lblDate";
+            lblDate.Size = new Size(31, 15);
+            lblDate.TabIndex = 26;
+            lblDate.Text = "Date";
+            // 
+            // lblAudio
+            // 
+            lblAudio.AutoSize = true;
+            lblAudio.Location = new Point(65, 755);
+            lblAudio.Name = "lblAudio";
+            lblAudio.Size = new Size(39, 15);
+            lblAudio.TabIndex = 27;
+            lblAudio.Text = "Audio";
+            // 
+            // txtAudio
+            // 
+            txtAudio.Location = new Point(122, 752);
+            txtAudio.Name = "txtAudio";
+            txtAudio.Size = new Size(123, 23);
+            txtAudio.TabIndex = 28;
+            // 
+            // txtVideo
+            // 
+            txtVideo.Location = new Point(384, 755);
+            txtVideo.Name = "txtVideo";
+            txtVideo.Size = new Size(123, 23);
+            txtVideo.TabIndex = 30;
+            // 
+            // lblVideo
+            // 
+            lblVideo.AutoSize = true;
+            lblVideo.Location = new Point(327, 758);
+            lblVideo.Name = "lblVideo";
+            lblVideo.Size = new Size(37, 15);
+            lblVideo.TabIndex = 29;
+            lblVideo.Text = "Video";
+            // 
+            // txtRent
+            // 
+            txtRent.Location = new Point(606, 713);
+            txtRent.Name = "txtRent";
+            txtRent.Size = new Size(123, 23);
+            txtRent.TabIndex = 32;
+            // 
+            // lblRent
+            // 
+            lblRent.AutoSize = true;
+            lblRent.Location = new Point(549, 716);
+            lblRent.Name = "lblRent";
+            lblRent.Size = new Size(31, 15);
+            lblRent.TabIndex = 31;
+            lblRent.Text = "Rent";
+            // 
+            // txtLabor
+            // 
+            txtLabor.Location = new Point(384, 710);
+            txtLabor.Name = "txtLabor";
+            txtLabor.Size = new Size(123, 23);
+            txtLabor.TabIndex = 34;
+            // 
+            // lblLabor
+            // 
+            lblLabor.AutoSize = true;
+            lblLabor.Location = new Point(327, 713);
+            lblLabor.Name = "lblLabor";
+            lblLabor.Size = new Size(37, 15);
+            lblLabor.TabIndex = 33;
+            lblLabor.Text = "Labor";
+            // 
+            // btnPrevious
+            // 
+            btnPrevious.Location = new Point(65, 803);
+            btnPrevious.Name = "btnPrevious";
+            btnPrevious.Size = new Size(94, 27);
+            btnPrevious.TabIndex = 35;
+            btnPrevious.Text = "Previous";
+            btnPrevious.UseVisualStyleBackColor = true;
+            // 
+            // btnNext
+            // 
+            btnNext.Location = new Point(192, 803);
+            btnNext.Name = "btnNext";
+            btnNext.Size = new Size(96, 27);
+            btnNext.TabIndex = 36;
+            btnNext.Text = "Next";
+            btnNext.UseVisualStyleBackColor = true;
+            // 
+            // btnSaveNext
+            // 
+            btnSaveNext.Location = new Point(384, 803);
+            btnSaveNext.Name = "btnSaveNext";
+            btnSaveNext.Size = new Size(107, 27);
+            btnSaveNext.TabIndex = 37;
+            btnSaveNext.Text = "Save and Next";
+            btnSaveNext.UseVisualStyleBackColor = true;
+            btnSaveNext.Click += btnSaveNext_Click;
+            // 
+            // btnSaveRepeat
+            // 
+            btnSaveRepeat.Location = new Point(523, 803);
+            btnSaveRepeat.Name = "btnSaveRepeat";
+            btnSaveRepeat.Size = new Size(111, 27);
+            btnSaveRepeat.TabIndex = 38;
+            btnSaveRepeat.Text = "Save and Repeat";
+            btnSaveRepeat.UseVisualStyleBackColor = true;
+            // 
+            // btnSubmitBatch
+            // 
+            btnSubmitBatch.Location = new Point(882, 803);
+            btnSubmitBatch.Name = "btnSubmitBatch";
+            btnSubmitBatch.Size = new Size(111, 27);
+            btnSubmitBatch.TabIndex = 39;
+            btnSubmitBatch.Text = "Submit Batch";
+            btnSubmitBatch.UseVisualStyleBackColor = true;
+            // 
             // ReceiptApp
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1127, 832);
+            ClientSize = new Size(1127, 882);
+            Controls.Add(btnSubmitBatch);
+            Controls.Add(btnSaveRepeat);
+            Controls.Add(btnSaveNext);
+            Controls.Add(btnNext);
+            Controls.Add(btnPrevious);
+            Controls.Add(txtLabor);
+            Controls.Add(lblLabor);
+            Controls.Add(txtRent);
+            Controls.Add(lblRent);
+            Controls.Add(txtVideo);
+            Controls.Add(lblVideo);
+            Controls.Add(txtAudio);
+            Controls.Add(lblAudio);
+            Controls.Add(lblDate);
+            Controls.Add(dateTimePicker1);
+            Controls.Add(txtDescription);
+            Controls.Add(lblDescription);
+            Controls.Add(txtCategory);
+            Controls.Add(lblCategory);
+            Controls.Add(txtVendor);
+            Controls.Add(lblVendor);
+            Controls.Add(lblAddress);
+            Controls.Add(lblZip);
+            Controls.Add(lblState);
+            Controls.Add(lblCity);
+            Controls.Add(txtAmount);
+            Controls.Add(lblAmount);
             Controls.Add(btnEditUser);
             Controls.Add(lblEvent);
             Controls.Add(cboEvents);
@@ -216,6 +496,33 @@
         private Label lblEvent;
         private Syncfusion.Windows.Forms.BannerTextProvider bannerTextProvider1;
         private Button btnEditUser;
+        private Label lblAmount;
+        private TextBox txtAmount;
+        private Label lblCity;
+        private Label lblState;
+        private Label lblZip;
+        private Label lblAddress;
+        private TextBox txtVendor;
+        private Label lblVendor;
+        private TextBox txtCategory;
+        private Label lblCategory;
+        private TextBox txtDescription;
+        private Label lblDescription;
+        private DateTimePicker dateTimePicker1;
+        private Label lblDate;
+        private Label lblAudio;
+        private TextBox txtAudio;
+        private TextBox txtVideo;
+        private Label lblVideo;
+        private TextBox txtRent;
+        private Label lblRent;
+        private TextBox txtLabor;
+        private Label lblLabor;
+        private Button btnPrevious;
+        private Button btnNext;
+        private Button btnSaveNext;
+        private Button btnSaveRepeat;
+        private Button btnSubmitBatch;
     }
 }
 

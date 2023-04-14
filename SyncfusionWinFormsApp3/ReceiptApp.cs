@@ -1,16 +1,7 @@
-﻿using Syncfusion.Windows.Forms.PdfViewer;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
+﻿using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using SyncfusionWinFormsApp3;
+
 
 
 namespace SyncfusionWinFormsApp3
@@ -24,10 +15,19 @@ namespace SyncfusionWinFormsApp3
         public ReceiptApp()
         {
 
-            InitializeComponent();
-
+            InitializeComponent();            
+            cboEvents.SelectedIndexChanged += CboEvents_SelectedIndexChanged;            
+            btnPrevious.Click += BtnPrevious_Click;
+            btnNext.Click += BtnNext_Click;
+            txtLabor.KeyPress += NumericTextBox_KeyPress;
+            txtRent.KeyPress += NumericTextBox_KeyPress;
+            txtAudio.KeyPress += NumericTextBox_KeyPress;
+            txtVideo.KeyPress += NumericTextBox_KeyPress;
+            txtAmount.KeyPress += NumericTextBox_KeyPress;
+            
             // Set the ListView control to Details view mode
             listView.View = View.Details;
+
 
             // Add a column to the ListView control to display the file names
             listView.Columns.Add("File Name", 300);
@@ -39,16 +39,14 @@ namespace SyncfusionWinFormsApp3
             UpdateDirectoryPath();
 
             cboUsername.DrawItem += CboUsername_DrawItem;
-            this.Controls.Add(cboUsername);
+            this.Controls.Add(cboUsername);            
         }
-
 
         private void LoadPdfFiles()
         {
             // Check whether the directory path exists
             if (!Directory.Exists(directoryPath))
             {
-
                 Console.WriteLine($"Directory '{directoryPath}' does not exist.");
                 return;
             }
@@ -58,20 +56,20 @@ namespace SyncfusionWinFormsApp3
 
             foreach (string pdfFile in pdfFiles)
             {
-                // Add the file name to the ListView control
                 ListViewItem item = new ListViewItem(Path.GetFileName(pdfFile));
-
-                // Add the item to the ListView control
+                item.Tag = false; // false means data has not been entered yet
                 listView.Items.Add(item);
             }
 
-            foreach (string pdfFile in pdfFiles)
+            // Select the first item in the ListView
+            if (listView.Items.Count > 0)
             {
-                ListViewItem item = new ListViewItem(Path.GetFileName(pdfFile));
-                item.Tag = false; // Add this line, false means data has not been entered yet
-                listView.Items.Add(item);
+                listView.Items[0].Selected = true;
+                listView.Items[0].Focused = true;
+                listView.Select();
             }
         }
+
 
         private void LoadUsernames()
         {
@@ -121,7 +119,6 @@ namespace SyncfusionWinFormsApp3
 
             // Load the PDF files from the directory path for the selected username
             string selectedUsername = cboUsername.SelectedItem?.ToString();
-
 
             if (!string.IsNullOrEmpty(selectedUsername))
             {
@@ -178,7 +175,7 @@ namespace SyncfusionWinFormsApp3
                 string selectedFile = Path.Combine(directoryPath, listView.SelectedItems[0].Text);
                 pdfViewerControl1.Load(selectedFile);
             }
-        }
+        }        
 
         private void listView1_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
@@ -189,26 +186,26 @@ namespace SyncfusionWinFormsApp3
         }
 
         private void UpdateDirectoryPath()
-        {
-            lblDirectoryPath.Text = directoryPath;
-            lblSavedDirectory.Text = outputDirectoryPath;
-
-            // Check if a username was selected
-            if (!string.IsNullOrEmpty(cboUsername.Text))
             {
-                // Update the user's default directory path in the database
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                lblDirectoryPath.Text = directoryPath;
+                lblSavedDirectory.Text = outputDirectoryPath;
+
+                // Check if a username was selected
+                if (!string.IsNullOrEmpty(cboUsername.Text))
                 {
-                    connection.Open();
+                    // Update the user's default directory path in the database
+                    using (SqlConnection connection = new SqlConnection(connectionString))
+                    {
+                        connection.Open();
 
-                    string username = cboUsername.Text;
-                    string query = $"UPDATE Users SET DefaultDirectoryPath = '{directoryPath}', OutputDirectoryPath = '{outputDirectoryPath}' WHERE Username = '{username}'";
+                        string username = cboUsername.Text;
+                        string query = $"UPDATE Users SET DefaultDirectoryPath = '{directoryPath}', OutputDirectoryPath = '{outputDirectoryPath}' WHERE Username = '{username}'";
 
-                    SqlCommand command = new SqlCommand(query, connection);
-                    int rowsAffected = command.ExecuteNonQuery();
+                        SqlCommand command = new SqlCommand(query, connection);
+                        int rowsAffected = command.ExecuteNonQuery();
+                    }
                 }
             }
-        }
 
         private void btnDirectoryPath_Click(object sender, EventArgs e)
         {
@@ -231,14 +228,18 @@ namespace SyncfusionWinFormsApp3
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                string query = "SELECT EventID, EventName FROM Events";
+                string query = "SELECT EventID, EventName, Address, City, State, Zip FROM Events";
                 SqlCommand command = new SqlCommand(query, connection);
                 SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
                     int eventID = reader.GetInt32(0);
                     string eventName = reader.GetString(1);
-                    cboEvents.Items.Add(new Events { EventID = eventID, EventName = eventName });
+                    string address = reader.GetString(2);
+                    string city = reader.GetString(3);
+                    string state = reader.GetString(4);
+                    string zip = reader.GetString(5);
+                    cboEvents.Items.Add(new Events { EventID = eventID, EventName = eventName, Address = address, City = city, State = state, Zip = zip });
                 }
             }
 
@@ -246,6 +247,11 @@ namespace SyncfusionWinFormsApp3
             if (cboEvents.Items.Count > 0)
             {
                 cboEvents.SelectedIndex = 0;
+                Events selectedEvent = cboEvents.SelectedItem as Events;
+                lblAddress.Text = selectedEvent.Address;
+                lblCity.Text = selectedEvent.City;
+                lblState.Text = selectedEvent.State;
+                lblZip.Text = selectedEvent.Zip;
             }
         }
 
@@ -352,10 +358,205 @@ namespace SyncfusionWinFormsApp3
 
             if (folderDialog.ShowDialog() == DialogResult.OK)
             {
-                outputDirectoryPath = folderDialog.SelectedPath;                              
+                outputDirectoryPath = folderDialog.SelectedPath;
                 UpdateDirectoryPath();
                 Load_Form(this, EventArgs.Empty);
             }
         }
+
+
+        private void CboEvents_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cboEvents.SelectedIndex >= 0)
+            {
+                Events selectedEvent = cboEvents.SelectedItem as Events;
+                lblAddress.Text = selectedEvent.Address;
+                lblCity.Text = selectedEvent.City;
+                lblState.Text = selectedEvent.State;
+                lblZip.Text = selectedEvent.Zip;
+            }
+        }
+        private void BtnPrevious_Click(object sender, EventArgs e)
+        {
+            if (listView.SelectedIndices.Count > 0 && listView.SelectedIndices[0] > 0)
+            {
+                int previousIndex = listView.SelectedIndices[0] - 1;
+                listView.Items[listView.SelectedIndices[0]].Selected = false;
+                listView.Items[previousIndex].Selected = true;
+                listView.Items[previousIndex].Focused = true;
+                listView.EnsureVisible(previousIndex);
+            }
+        }
+
+        private void BtnNext_Click(object sender, EventArgs e)
+        {
+            if (listView.SelectedIndices.Count > 0 && listView.SelectedIndices[0] < listView.Items.Count - 1)
+            {
+                int nextIndex = listView.SelectedIndices[0] + 1;
+                listView.Items[listView.SelectedIndices[0]].Selected = false;
+                listView.Items[nextIndex].Selected = true;
+                listView.Items[nextIndex].Focused = true;
+                listView.EnsureVisible(nextIndex);
+            }
+        }
+        private void SaveFormData()
+        {
+            int eventID = ((Events)cboEvents.SelectedItem).EventID;
+
+            // Get the selected PDF file name
+            string selectedPdf = listView.SelectedItems[0].Text;
+
+            bool recordExists = RecordExists(eventID, selectedPdf);
+
+            if (recordExists)
+            {
+                LoadFormData(eventID, selectedPdf);
+            }
+            else
+            {
+                // Read data from your form fields, e.g.:
+                DateTime date = dateTimePicker1.Value;
+                string vendor = txtVendor.Text;
+                string description = txtDescription.Text;
+                string category = txtCategory.Text;
+                decimal.TryParse(txtLabor.Text, out decimal labor);
+                decimal.TryParse(txtRent.Text, out decimal rent);
+                decimal.TryParse(txtAudio.Text, out decimal audio);
+                decimal.TryParse(txtVideo.Text, out decimal video);
+                decimal.TryParse(txtAmount.Text, out decimal amount);
+
+                string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                string uniqueFilePath = $"C:\\Downloads\\{selectedPdf}_{timeStamp}.pdf";
+
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    SqlCommand command;
+
+                    if (recordExists)
+                    {
+                        // UPDATE statement
+                        string updateQuery = "UPDATE ReceiptData SET Labor = @Labor, Rent = @Rent, Audio = @Audio, Video = @Video, Amount = @Amount, DataSaved = 1 WHERE EventID = @EventID AND PdfFileName = @PdfFileName";
+                        command = new SqlCommand(updateQuery, connection);
+                    }
+                    else
+                    {
+                        // INSERT statement
+                        string insertQuery = "INSERT INTO ReceiptData (EventID, Date, Vendor, Description, Category, Labor, Rent, Audio, Video, Amount, PdfFileName, DataSaved) VALUES (@EventID, @Date, @Vendor, @Description, @Category, @Labor, @Rent, @Audio, @Video, @Amount, @PdfFileName, 1)";
+                        command = new SqlCommand(insertQuery, connection);
+                        command.Parameters.AddWithValue("@Date", dateTimePicker1.Value);
+                    }
+
+                    // Common parameters
+                    command.Parameters.AddWithValue("@EventID", eventID);
+                    command.Parameters.AddWithValue("@Vendor", txtVendor.Text);
+                    command.Parameters.AddWithValue("@Description", txtDescription.Text);
+                    command.Parameters.AddWithValue("@Category", txtCategory.Text);
+                    command.Parameters.AddWithValue("@Labor", labor);
+                    command.Parameters.AddWithValue("@Rent", rent);
+                    command.Parameters.AddWithValue("@Audio", audio);
+                    command.Parameters.AddWithValue("@Video", video);
+                    command.Parameters.AddWithValue("@Amount", amount);
+                    command.Parameters.AddWithValue("@PdfFileName", selectedPdf);
+                    command.Parameters.AddWithValue("@FilePath", uniqueFilePath);
+
+                    command.ExecuteNonQuery();
+                }
+
+                int selectedIndex = listView.SelectedIndices[0];
+
+                listView.Items[selectedIndex].ForeColor = Color.Green;
+                listView.Items[selectedIndex].Tag = true;
+
+                ClearFormFields();
+            }
+        }
+
+
+        private void ClearFormFields()
+        {
+            dateTimePicker1.Value = DateTime.Now;
+            txtVendor.Clear();
+            txtDescription.Clear();
+            txtCategory.Clear();
+            txtLabor.Clear();
+            txtRent.Clear();
+            txtAudio.Clear();
+            txtVideo.Clear();
+            txtAmount.Clear();
+        }
+
+        private void btnSaveNext_Click(object sender, EventArgs e)
+        {
+            // Save the form data
+            SaveFormData();
+
+            // Go to the next PDF
+            BtnNext_Click(sender, e);
+
+            // Clear the form fields
+            ClearFormFields();
+        }
+        private void NumericTextBox_KeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
+
+        {
+            // Allow only digits, a single decimal point, and the backspace key
+            if (!char.IsDigit(e.KeyChar) && e.KeyChar != '.' && e.KeyChar != (char)Keys.Back)
+            {
+                e.Handled = true;
+            }
+
+            // Allow only one decimal point
+            TextBox textBox = sender as TextBox;
+            if (e.KeyChar == '.' && textBox.Text.Contains('.'))
+            {
+                e.Handled = true;
+            }
+        }
+        private void LoadFormData(int eventID, string selectedPdf)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string checkQuery = "SELECT Date, Vendor, Description, Category, Labor, Rent, Audio, Video, Amount FROM ReceiptData WHERE EventID = @EventID AND PdfFileName = @PdfFileName AND DataSaved = 1";
+                SqlCommand checkCommand = new SqlCommand(checkQuery, connection);
+                checkCommand.Parameters.AddWithValue("@EventID", eventID);
+                checkCommand.Parameters.AddWithValue("@PdfFileName", selectedPdf);
+
+                using (SqlDataReader reader = checkCommand.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            dateTimePicker1.Value = reader.GetDateTime(0);
+                            txtVendor.Text = reader.GetString(1);
+                            txtDescription.Text = reader.GetString(2);
+                            txtCategory.Text = reader.GetString(3);
+                            txtLabor.Text = reader.GetDecimal(4).ToString();
+                            txtRent.Text = reader.GetDecimal(5).ToString();
+                            txtAudio.Text = reader.GetDecimal(6).ToString();
+                            txtVideo.Text = reader.GetDecimal(7).ToString();
+                            txtAmount.Text = reader.GetDecimal(8).ToString();
+                        }
+                    }
+                }
+            }
+        }
+        private bool RecordExists(int eventID, string selectedPdf)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string checkQuery = "SELECT COUNT(*) FROM ReceiptData WHERE EventID = @EventID AND PdfFileName = @PdfFileName AND DataSaved = 1";
+                SqlCommand checkCommand = new SqlCommand(checkQuery, connection);
+                checkCommand.Parameters.AddWithValue("@EventID", eventID);
+                checkCommand.Parameters.AddWithValue("@PdfFileName", selectedPdf);
+
+                int count = (int)checkCommand.ExecuteScalar();
+                return count > 0;
+            }
+        }
+
     }
 }

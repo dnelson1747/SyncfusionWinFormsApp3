@@ -154,7 +154,6 @@ namespace SyncfusionWinFormsApp3
             }
         }
 
-
         private void btnDelete_Click(object sender, EventArgs e)
         {
             Users selectedUser = cboUsernames.SelectedItem as Users;
