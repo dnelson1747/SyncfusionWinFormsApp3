@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using Syncfusion.Pdf.Interactive;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -11,12 +12,14 @@ namespace SyncfusionWinFormsApp3
         private string directoryPath;
         private string outputDirectoryPath;
         private string connectionString = "Data Source=sphq-op-djn\\sqlexpress;Initial Catalog=Apps;Integrated Security=True";
+        private string[] pdfFiles;
+        private int currentPdfIndex = -1;
 
         public ReceiptApp()
         {
 
-            InitializeComponent();            
-            cboEvents.SelectedIndexChanged += CboEvents_SelectedIndexChanged;            
+            InitializeComponent();
+            cboEvents.SelectedIndexChanged += CboEvents_SelectedIndexChanged;
             btnPrevious.Click += BtnPrevious_Click;
             btnNext.Click += BtnNext_Click;
             txtLabor.KeyPress += NumericTextBox_KeyPress;
@@ -24,7 +27,7 @@ namespace SyncfusionWinFormsApp3
             txtAudio.KeyPress += NumericTextBox_KeyPress;
             txtVideo.KeyPress += NumericTextBox_KeyPress;
             txtAmount.KeyPress += NumericTextBox_KeyPress;
-            
+
             // Set the ListView control to Details view mode
             listView.View = View.Details;
 
@@ -39,7 +42,7 @@ namespace SyncfusionWinFormsApp3
             UpdateDirectoryPath();
 
             cboUsername.DrawItem += CboUsername_DrawItem;
-            this.Controls.Add(cboUsername);            
+            this.Controls.Add(cboUsername);
         }
 
         private void LoadPdfFiles()
@@ -52,13 +55,14 @@ namespace SyncfusionWinFormsApp3
             }
 
             // Use the directory path to load PDF files from the directory
-            string[] pdfFiles = Directory.GetFiles(directoryPath, "*.pdf");
+            pdfFiles = Directory.GetFiles(directoryPath, "*.pdf");
 
             foreach (string pdfFile in pdfFiles)
             {
                 ListViewItem item = new ListViewItem(Path.GetFileName(pdfFile));
                 item.Tag = false; // false means data has not been entered yet
                 listView.Items.Add(item);
+
             }
 
             // Select the first item in the ListView
@@ -67,6 +71,7 @@ namespace SyncfusionWinFormsApp3
                 listView.Items[0].Selected = true;
                 listView.Items[0].Focused = true;
                 listView.Select();
+                currentPdfIndex = 0;
             }
         }
 
@@ -76,6 +81,7 @@ namespace SyncfusionWinFormsApp3
             cboUsername.DrawMode = DrawMode.OwnerDrawFixed;
             cboUsername.SelectedIndexChanged += CboUsername_SelectedIndexChanged;
             cboUsername.Items.Clear();
+            int batchID = DisplayBatchNumber();
 
 
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -134,6 +140,7 @@ namespace SyncfusionWinFormsApp3
                     {
                         directoryPath = defaultDirectoryPath;
                         LoadPdfFiles();
+
                     }
                     else
                     {
@@ -174,8 +181,19 @@ namespace SyncfusionWinFormsApp3
             {
                 string selectedFile = Path.Combine(directoryPath, listView.SelectedItems[0].Text);
                 pdfViewerControl1.Load(selectedFile);
+
+                // Check if the selected file has data in the ReceiptData table
+                Events selectedEvent = cboEvents.SelectedItem as Events;
+                int eventID = selectedEvent.EventID;
+                if (RecordExists(eventID, selectedFile))
+                {
+                    // Load the form data for the selected file
+                    LoadFormData(eventID, selectedFile);
+                }
+                currentPdfIndex = Array.IndexOf(pdfFiles, selectedFile);
+                lblPdfIndex.Text = $"PDF Index: {currentPdfIndex += 1}";
             }
-        }        
+        }
 
         private void listView1_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
@@ -186,26 +204,26 @@ namespace SyncfusionWinFormsApp3
         }
 
         private void UpdateDirectoryPath()
+        {
+            lblDirectoryPath.Text = directoryPath;
+            lblSavedDirectory.Text = outputDirectoryPath;
+
+            // Check if a username was selected
+            if (!string.IsNullOrEmpty(cboUsername.Text))
             {
-                lblDirectoryPath.Text = directoryPath;
-                lblSavedDirectory.Text = outputDirectoryPath;
-
-                // Check if a username was selected
-                if (!string.IsNullOrEmpty(cboUsername.Text))
+                // Update the user's default directory path in the database
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    // Update the user's default directory path in the database
-                    using (SqlConnection connection = new SqlConnection(connectionString))
-                    {
-                        connection.Open();
+                    connection.Open();
 
-                        string username = cboUsername.Text;
-                        string query = $"UPDATE Users SET DefaultDirectoryPath = '{directoryPath}', OutputDirectoryPath = '{outputDirectoryPath}' WHERE Username = '{username}'";
+                    string username = cboUsername.Text;
+                    string query = $"UPDATE Users SET DefaultDirectoryPath = '{directoryPath}', OutputDirectoryPath = '{outputDirectoryPath}' WHERE Username = '{username}'";
 
-                        SqlCommand command = new SqlCommand(query, connection);
-                        int rowsAffected = command.ExecuteNonQuery();
-                    }
+                    SqlCommand command = new SqlCommand(query, connection);
+                    int rowsAffected = command.ExecuteNonQuery();
                 }
             }
+        }
 
         private void btnDirectoryPath_Click(object sender, EventArgs e)
         {
@@ -557,6 +575,35 @@ namespace SyncfusionWinFormsApp3
                 return count > 0;
             }
         }
+        private int DisplayBatchNumber()
+        {
+            int lastBatchNumber = 0;
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string query = "SELECT MAX(BatchNumber) FROM ReceiptBatch";
+                SqlCommand command = new SqlCommand(query, connection);
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    lastBatchNumber = reader.GetInt32(0);
+                    string batchTime = DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt");
+                    lblBatchTime.Text = "Batch Time: " + batchTime;
+                }
+                else
+                {
+                    lblBatchTime.Text = "Batch Time: N/A";
+                }
+            }
+
+            lblBatchID.Text = "Batch #: " + (lastBatchNumber + 1);
+
+            return lastBatchNumber + 1;
+        }
+
 
     }
 }

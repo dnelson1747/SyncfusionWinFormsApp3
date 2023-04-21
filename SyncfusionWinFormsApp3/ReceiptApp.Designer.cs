@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            Syncfusion.Windows.Forms.PdfViewer.MessageBoxSettings messageBoxSettings1 = new Syncfusion.Windows.Forms.PdfViewer.MessageBoxSettings();
-            Syncfusion.Windows.PdfViewer.PdfViewerPrinterSettings pdfViewerPrinterSettings1 = new Syncfusion.Windows.PdfViewer.PdfViewerPrinterSettings();
+            Syncfusion.Windows.Forms.PdfViewer.MessageBoxSettings messageBoxSettings2 = new Syncfusion.Windows.Forms.PdfViewer.MessageBoxSettings();
+            Syncfusion.Windows.PdfViewer.PdfViewerPrinterSettings pdfViewerPrinterSettings2 = new Syncfusion.Windows.PdfViewer.PdfViewerPrinterSettings();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ReceiptApp));
-            Syncfusion.Windows.Forms.PdfViewer.TextSearchSettings textSearchSettings1 = new Syncfusion.Windows.Forms.PdfViewer.TextSearchSettings();
+            Syncfusion.Windows.Forms.PdfViewer.TextSearchSettings textSearchSettings2 = new Syncfusion.Windows.Forms.PdfViewer.TextSearchSettings();
             imageListAdv1 = new Syncfusion.Windows.Forms.Tools.ImageListAdv(components);
             listView = new ListView();
             pdfViewerControl1 = new Syncfusion.Windows.Forms.PdfViewer.PdfViewerControl();
@@ -73,6 +73,9 @@
             btnSaveNext = new Button();
             btnSaveRepeat = new Button();
             btnSubmitBatch = new Button();
+            lblPdfIndex = new Label();
+            lblBatchTime = new Label();
+            lblBatchID = new Label();
             SuspendLayout();
             // 
             // listView
@@ -94,17 +97,17 @@
             pdfViewerControl1.IsTextSearchEnabled = true;
             pdfViewerControl1.IsTextSelectionEnabled = true;
             pdfViewerControl1.Location = new Point(21, 68);
-            messageBoxSettings1.EnableNotification = true;
-            pdfViewerControl1.MessageBoxSettings = messageBoxSettings1;
+            messageBoxSettings2.EnableNotification = true;
+            pdfViewerControl1.MessageBoxSettings = messageBoxSettings2;
             pdfViewerControl1.MinimumZoomPercentage = 50;
             pdfViewerControl1.Name = "pdfViewerControl1";
             pdfViewerControl1.PageBorderThickness = 1;
-            pdfViewerPrinterSettings1.Copies = 1;
-            pdfViewerPrinterSettings1.PageOrientation = Syncfusion.Windows.PdfViewer.PdfViewerPrintOrientation.Auto;
-            pdfViewerPrinterSettings1.PageSize = Syncfusion.Windows.PdfViewer.PdfViewerPrintSize.ActualSize;
-            pdfViewerPrinterSettings1.PrintLocation = (PointF)resources.GetObject("pdfViewerPrinterSettings1.PrintLocation");
-            pdfViewerPrinterSettings1.ShowPrintStatusDialog = true;
-            pdfViewerControl1.PrinterSettings = pdfViewerPrinterSettings1;
+            pdfViewerPrinterSettings2.Copies = 1;
+            pdfViewerPrinterSettings2.PageOrientation = Syncfusion.Windows.PdfViewer.PdfViewerPrintOrientation.Auto;
+            pdfViewerPrinterSettings2.PageSize = Syncfusion.Windows.PdfViewer.PdfViewerPrintSize.ActualSize;
+            pdfViewerPrinterSettings2.PrintLocation = (PointF)resources.GetObject("pdfViewerPrinterSettings2.PrintLocation");
+            pdfViewerPrinterSettings2.ShowPrintStatusDialog = true;
+            pdfViewerControl1.PrinterSettings = pdfViewerPrinterSettings2;
             pdfViewerControl1.ReferencePath = null;
             pdfViewerControl1.ScrollDisplacementValue = 0;
             pdfViewerControl1.ShowHorizontalScrollBar = true;
@@ -114,10 +117,10 @@
             pdfViewerControl1.SpaceBetweenPages = 8;
             pdfViewerControl1.TabIndex = 1;
             pdfViewerControl1.Text = "pdfViewerControl1";
-            textSearchSettings1.CurrentInstanceColor = Color.FromArgb(127, 255, 171, 64);
-            textSearchSettings1.HighlightAllInstance = true;
-            textSearchSettings1.OtherInstanceColor = Color.FromArgb(127, 254, 255, 0);
-            pdfViewerControl1.TextSearchSettings = textSearchSettings1;
+            textSearchSettings2.CurrentInstanceColor = Color.FromArgb(127, 255, 171, 64);
+            textSearchSettings2.HighlightAllInstance = true;
+            textSearchSettings2.OtherInstanceColor = Color.FromArgb(127, 254, 255, 0);
+            pdfViewerControl1.TextSearchSettings = textSearchSettings2;
             pdfViewerControl1.ThemeName = "Default";
             pdfViewerControl1.VerticalScrollOffset = 0;
             pdfViewerControl1.VisualStyle = Syncfusion.Windows.Forms.PdfViewer.VisualStyle.Default;
@@ -425,18 +428,48 @@
             // 
             // btnSubmitBatch
             // 
-            btnSubmitBatch.Location = new Point(882, 803);
+            btnSubmitBatch.Location = new Point(882, 817);
             btnSubmitBatch.Name = "btnSubmitBatch";
             btnSubmitBatch.Size = new Size(111, 27);
             btnSubmitBatch.TabIndex = 39;
             btnSubmitBatch.Text = "Submit Batch";
             btnSubmitBatch.UseVisualStyleBackColor = true;
             // 
+            // lblPdfIndex
+            // 
+            lblPdfIndex.AutoSize = true;
+            lblPdfIndex.Location = new Point(882, 654);
+            lblPdfIndex.Name = "lblPdfIndex";
+            lblPdfIndex.Size = new Size(36, 15);
+            lblPdfIndex.TabIndex = 40;
+            lblPdfIndex.Text = "Index";
+            // 
+            // lblBatchTime
+            // 
+            lblBatchTime.AutoSize = true;
+            lblBatchTime.Location = new Point(882, 787);
+            lblBatchTime.Name = "lblBatchTime";
+            lblBatchTime.Size = new Size(66, 15);
+            lblBatchTime.TabIndex = 41;
+            lblBatchTime.Text = "Batch Time";
+            // 
+            // lblBatchID
+            // 
+            lblBatchID.AutoSize = true;
+            lblBatchID.Location = new Point(882, 763);
+            lblBatchID.Name = "lblBatchID";
+            lblBatchID.Size = new Size(51, 15);
+            lblBatchID.TabIndex = 42;
+            lblBatchID.Text = "Batch ID";
+            // 
             // ReceiptApp
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1127, 882);
+            Controls.Add(lblBatchID);
+            Controls.Add(lblBatchTime);
+            Controls.Add(lblPdfIndex);
             Controls.Add(btnSubmitBatch);
             Controls.Add(btnSaveRepeat);
             Controls.Add(btnSaveNext);
@@ -523,6 +556,9 @@
         private Button btnSaveNext;
         private Button btnSaveRepeat;
         private Button btnSubmitBatch;
+        private Label lblPdfIndex;
+        private Label lblBatchTime;
+        private Label lblBatchID;
     }
 }
 
