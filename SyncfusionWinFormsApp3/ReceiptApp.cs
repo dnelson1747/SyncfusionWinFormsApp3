@@ -17,7 +17,6 @@ namespace SyncfusionWinFormsApp3
 
         public ReceiptApp()
         {
-
             InitializeComponent();
             cboEvents.SelectedIndexChanged += CboEvents_SelectedIndexChanged;
             btnPrevious.Click += BtnPrevious_Click;
@@ -30,7 +29,6 @@ namespace SyncfusionWinFormsApp3
 
             // Set the ListView control to Details view mode
             listView.View = View.Details;
-
 
             // Add a column to the ListView control to display the file names
             listView.Columns.Add("File Name", 300);
@@ -75,14 +73,12 @@ namespace SyncfusionWinFormsApp3
             }
         }
 
-
         private void LoadUsernames()
         {
             cboUsername.DrawMode = DrawMode.OwnerDrawFixed;
             cboUsername.SelectedIndexChanged += CboUsername_SelectedIndexChanged;
             cboUsername.Items.Clear();
             int batchID = DisplayBatchNumber();
-
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -140,7 +136,6 @@ namespace SyncfusionWinFormsApp3
                     {
                         directoryPath = defaultDirectoryPath;
                         LoadPdfFiles();
-
                     }
                     else
                     {
@@ -185,15 +180,34 @@ namespace SyncfusionWinFormsApp3
                 // Check if the selected file has data in the ReceiptData table
                 Events selectedEvent = cboEvents.SelectedItem as Events;
                 int eventID = selectedEvent.EventID;
-                if (RecordExists(eventID, selectedFile))
+                int pdfIndex = -1;
+
+                var parts = lblPdfIndex.Text.Split(' ');
+                if (parts.Length >= 3 && int.TryParse(parts[2], out int parsedPdfIndex))
+                {
+                    pdfIndex = parsedPdfIndex;
+                }
+
+                if (pdfIndex >= 0 && RecordExists(eventID, selectedFile, pdfIndex))
                 {
                     // Load the form data for the selected file
-                    LoadFormData(eventID, selectedFile);
+                    LoadFormData(eventID, selectedFile, pdfIndex);
                 }
+
                 currentPdfIndex = Array.IndexOf(pdfFiles, selectedFile);
-                lblPdfIndex.Text = $"PDF Index: {currentPdfIndex += 1}";
+                if (currentPdfIndex >= 0 && currentPdfIndex < pdfFiles.Length)
+                {
+                    lblPdfIndex.Text = $"PDF Index: {currentPdfIndex + 1}";
+                }
+                else
+                {
+                    lblPdfIndex.Text = "PDF Index: N/A";
+                }
             }
         }
+
+
+
 
         private void listView1_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
@@ -424,74 +438,68 @@ namespace SyncfusionWinFormsApp3
             // Get the selected PDF file name
             string selectedPdf = listView.SelectedItems[0].Text;
 
-            bool recordExists = RecordExists(eventID, selectedPdf);
+            int batchID = GetBatchID();
+            int pdfIndex = int.Parse(lblPdfIndex.Text.Split(' ')[2]);
 
-            if (recordExists)
+            bool recordExists = RecordExists(eventID, selectedPdf, pdfIndex);
+
+            // Read data from your form fields, e.g.:
+            DateTime date = dateTimePicker1.Value;
+            string vendor = txtVendor.Text;
+            string description = txtDescription.Text;
+            string category = txtCategory.Text;
+            decimal.TryParse(txtLabor.Text, out decimal labor);
+            decimal.TryParse(txtRent.Text, out decimal rent);
+            decimal.TryParse(txtAudio.Text, out decimal audio);
+            decimal.TryParse(txtVideo.Text, out decimal video);
+            decimal.TryParse(txtAmount.Text, out decimal amount);
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                LoadFormData(eventID, selectedPdf);
-            }
-            else
-            {
-                // Read data from your form fields, e.g.:
-                DateTime date = dateTimePicker1.Value;
-                string vendor = txtVendor.Text;
-                string description = txtDescription.Text;
-                string category = txtCategory.Text;
-                decimal.TryParse(txtLabor.Text, out decimal labor);
-                decimal.TryParse(txtRent.Text, out decimal rent);
-                decimal.TryParse(txtAudio.Text, out decimal audio);
-                decimal.TryParse(txtVideo.Text, out decimal video);
-                decimal.TryParse(txtAmount.Text, out decimal amount);
+                connection.Open();
+                SqlCommand command;
 
-                string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
-                string uniqueFilePath = $"C:\\Downloads\\{selectedPdf}_{timeStamp}.pdf";
-
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                if (recordExists)
                 {
-                    connection.Open();
-                    SqlCommand command;
-
-                    if (recordExists)
-                    {
-                        // UPDATE statement
-                        string updateQuery = "UPDATE ReceiptData SET Labor = @Labor, Rent = @Rent, Audio = @Audio, Video = @Video, Amount = @Amount, DataSaved = 1 WHERE EventID = @EventID AND PdfFileName = @PdfFileName";
-                        command = new SqlCommand(updateQuery, connection);
-                    }
-                    else
-                    {
-                        // INSERT statement
-                        string insertQuery = "INSERT INTO ReceiptData (EventID, Date, Vendor, Description, Category, Labor, Rent, Audio, Video, Amount, PdfFileName, DataSaved) VALUES (@EventID, @Date, @Vendor, @Description, @Category, @Labor, @Rent, @Audio, @Video, @Amount, @PdfFileName, 1)";
-                        command = new SqlCommand(insertQuery, connection);
-                        command.Parameters.AddWithValue("@Date", dateTimePicker1.Value);
-                    }
-
-                    // Common parameters
-                    command.Parameters.AddWithValue("@EventID", eventID);
-                    command.Parameters.AddWithValue("@Vendor", txtVendor.Text);
-                    command.Parameters.AddWithValue("@Description", txtDescription.Text);
-                    command.Parameters.AddWithValue("@Category", txtCategory.Text);
-                    command.Parameters.AddWithValue("@Labor", labor);
-                    command.Parameters.AddWithValue("@Rent", rent);
-                    command.Parameters.AddWithValue("@Audio", audio);
-                    command.Parameters.AddWithValue("@Video", video);
-                    command.Parameters.AddWithValue("@Amount", amount);
-                    command.Parameters.AddWithValue("@PdfFileName", selectedPdf);
-                    command.Parameters.AddWithValue("@FilePath", uniqueFilePath);
-
-                    command.ExecuteNonQuery();
+                    // UPDATE statement
+                    string updateQuery = "UPDATE ReceiptData SET Date = @Date, Vendor = @Vendor, Description = @Description, Category = @Category, Labor = @Labor, Rent = @Rent, Audio = @Audio, Video = @Video, Amount = @Amount, DataSaved = 1 WHERE EventID = @EventID AND PdfFileName = @PdfFileName AND BatchID = @BatchID AND PdfIndex = @PdfIndex";
+                    command = new SqlCommand(updateQuery, connection);
+                }
+                else
+                {
+                    // INSERT statement
+                    string insertQuery = "INSERT INTO ReceiptData (EventID, Date, Vendor, Description, Category, Labor, Rent, Audio, Video, Amount, PdfFileName, DataSaved, BatchID, PdfIndex) VALUES (@EventID, @Date, @Vendor, @Description, @Category, @Labor, @Rent, @Audio, @Video, @Amount, @PdfFileName, 1, @BatchID, @PdfIndex)";
+                    command = new SqlCommand(insertQuery, connection);
                 }
 
-                int selectedIndex = listView.SelectedIndices[0];
+                // Common parameters
+                command.Parameters.AddWithValue("@Date", dateTimePicker1.Value);
+                command.Parameters.AddWithValue("@EventID", eventID);
+                command.Parameters.AddWithValue("@Vendor", txtVendor.Text);
+                command.Parameters.AddWithValue("@Description", txtDescription.Text);
+                command.Parameters.AddWithValue("@Category", txtCategory.Text);
+                command.Parameters.AddWithValue("@Labor", labor);
+                command.Parameters.AddWithValue("@Rent", rent);
+                command.Parameters.AddWithValue("@Audio", audio);
+                command.Parameters.AddWithValue("@Video", video);
+                command.Parameters.AddWithValue("@Amount", amount);
+                command.Parameters.AddWithValue("@PdfFileName", selectedPdf);
+                command.Parameters.AddWithValue("@BatchID", batchID);
+                command.Parameters.AddWithValue("@PdfIndex", pdfIndex);
 
-                listView.Items[selectedIndex].ForeColor = Color.Green;
-                listView.Items[selectedIndex].Tag = true;
-
-                ClearFormFields();
+                command.ExecuteNonQuery();
             }
-        }
+
+            int selectedIndex = listView.SelectedIndices[0];
+
+            listView.Items[selectedIndex].ForeColor = Color.Green;
+            listView.Items[selectedIndex].Tag = true;
+
+            ClearFormFields();
+        }         
 
 
-        private void ClearFormFields()
+    private void ClearFormFields()
         {
             dateTimePicker1.Value = DateTime.Now;
             txtVendor.Clear();
@@ -531,8 +539,9 @@ namespace SyncfusionWinFormsApp3
                 e.Handled = true;
             }
         }
-        private void LoadFormData(int eventID, string selectedPdf)
+        private void LoadFormData(int eventID, string selectedPdf, int pdfIndex, int batchID = -1)
         {
+            
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
@@ -540,6 +549,8 @@ namespace SyncfusionWinFormsApp3
                 SqlCommand checkCommand = new SqlCommand(checkQuery, connection);
                 checkCommand.Parameters.AddWithValue("@EventID", eventID);
                 checkCommand.Parameters.AddWithValue("@PdfFileName", selectedPdf);
+                checkCommand.Parameters.AddWithValue("@BatchID", batchID);
+                checkCommand.Parameters.AddWithValue("@PdfIndex", pdfIndex);
 
                 using (SqlDataReader reader = checkCommand.ExecuteReader())
                 {
@@ -561,20 +572,31 @@ namespace SyncfusionWinFormsApp3
                 }
             }
         }
-        private bool RecordExists(int eventID, string selectedPdf)
+        private bool RecordExists(int eventID, string fileName, int pdfIndex, int batchID = -1)
         {
+            bool exists = false;
+
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                string checkQuery = "SELECT COUNT(*) FROM ReceiptData WHERE EventID = @EventID AND PdfFileName = @PdfFileName AND DataSaved = 1";
-                SqlCommand checkCommand = new SqlCommand(checkQuery, connection);
-                checkCommand.Parameters.AddWithValue("@EventID", eventID);
-                checkCommand.Parameters.AddWithValue("@PdfFileName", selectedPdf);
 
-                int count = (int)checkCommand.ExecuteScalar();
-                return count > 0;
+                string query = "SELECT COUNT(*) FROM ReceiptData WHERE EventID = @EventID AND PDFFileName = @FileName AND PdfIndex = @PdfIndex and DataSaved = 1";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@EventID", eventID);
+                command.Parameters.AddWithValue("@FileName", fileName);
+                command.Parameters.AddWithValue("@PdfIndex", pdfIndex);
+                command.Parameters.AddWithValue("@BatchID", batchID);
+
+                int count = (int)command.ExecuteScalar();
+                if (count > 0)
+                {
+                    exists = true;
+                }
             }
+
+            return exists;
         }
+
         private int DisplayBatchNumber()
         {
             int lastBatchNumber = 0;
@@ -599,11 +621,61 @@ namespace SyncfusionWinFormsApp3
                 }
             }
 
-            lblBatchID.Text = "Batch #: " + (lastBatchNumber + 1);
+            lblBatchNumber.Text = "Batch #: " + (lastBatchNumber + 1);
 
             return lastBatchNumber + 1;
         }
 
+        private int GetBatchID()
+        {
+            int newBatchID = 0;
+
+            // Check if batchNumber or batchTime is null or empty
+            if (string.IsNullOrEmpty(lblBatchNumber.Text) || string.IsNullOrEmpty(lblBatchTime.Text))
+            {
+                return newBatchID;
+            }
+
+            int batchNumber = int.Parse(lblBatchNumber.Text.Split(' ')[2]);
+            string batchTime = "2023-01-01";
+
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                // Check if the batch exists in the database
+                string selectQuery = "SELECT BatchID FROM ReceiptBatch WHERE BatchNumber = @BatchNumber AND Time = @BatchTime";
+                SqlCommand selectCommand = new SqlCommand(selectQuery, connection);
+                selectCommand.Parameters.AddWithValue("@BatchNumber", batchNumber);
+                selectCommand.Parameters.AddWithValue("@BatchTime", batchTime);
+                object result = selectCommand.ExecuteScalar();
+
+                if (result != null && result != DBNull.Value)
+                {
+                    // Batch exists, return the existing BatchID
+                    newBatchID = Convert.ToInt32(result);
+                }
+                else
+                {
+                    // Batch does not exist, insert it into the database and return the new BatchID
+                    string insertQuery = "INSERT INTO ReceiptBatch (BatchNumber, Time) VALUES (@BatchNumber, @BatchTime); SELECT CAST(scope_identity() AS int)";
+
+                    SqlCommand insertCommand = new SqlCommand(insertQuery, connection);
+                    insertCommand.Parameters.AddWithValue("@BatchNumber", batchNumber);
+                    insertCommand.Parameters.AddWithValue("@BatchTime", batchTime);
+
+                    object insertResult = insertCommand.ExecuteScalar();
+                    if (insertResult != null && insertResult != DBNull.Value)
+                    {
+                        newBatchID = Convert.ToInt32(insertResult);
+                    }
+                }
+
+            }
+
+            return newBatchID;
+        }
 
     }
 }
