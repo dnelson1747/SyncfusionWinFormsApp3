@@ -76,6 +76,7 @@
             lblPdfIndex = new Label();
             lblBatchTime = new Label();
             lblBatchNumber = new Label();
+            lblBatchID = new Label();
             SuspendLayout();
             // 
             // listView
@@ -462,11 +463,21 @@
             lblBatchNumber.TabIndex = 42;
             lblBatchNumber.Text = "Batch Number";
             // 
+            // lblBatchID
+            // 
+            lblBatchID.AutoSize = true;
+            lblBatchID.Location = new Point(882, 732);
+            lblBatchID.Name = "lblBatchID";
+            lblBatchID.Size = new Size(51, 15);
+            lblBatchID.TabIndex = 43;
+            lblBatchID.Text = "Batch ID";
+            // 
             // ReceiptApp
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1127, 882);
+            Controls.Add(lblBatchID);
             Controls.Add(lblBatchNumber);
             Controls.Add(lblBatchTime);
             Controls.Add(lblPdfIndex);
@@ -559,6 +570,7 @@
         private Label lblPdfIndex;
         private Label lblBatchTime;
         private Label lblBatchNumber;
+        private Label lblBatchID;
     }
 }
 
