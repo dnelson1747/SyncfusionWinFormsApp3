@@ -12,6 +12,8 @@ namespace SyncfusionWinFormsApp3
         private string connectionString = "Data Source=sphq-op-djn\\sqlexpress;Initial Catalog=Apps;Integrated Security=True";
         private string[] pdfFiles;
         private int currentPdfIndex = 0;
+        private int currentBatchNumber;
+        private string DBfilePath = @"C:\Downloads\";
 
         public ReceiptApp()
         {
@@ -36,6 +38,8 @@ namespace SyncfusionWinFormsApp3
             LoadEvents();
             Load_Form(this, EventArgs.Empty);
             UpdateDirectoryPath();
+            currentBatchNumber = DisplayBatchNumber();
+
 
             cboUsername.DrawItem += CboUsername_DrawItem;
             this.Controls.Add(cboUsername);
@@ -76,7 +80,6 @@ namespace SyncfusionWinFormsApp3
             cboUsername.DrawMode = DrawMode.OwnerDrawFixed;
             cboUsername.SelectedIndexChanged += CboUsername_SelectedIndexChanged;
             cboUsername.Items.Clear();
-            int batchID = DisplayBatchNumber();
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -191,9 +194,9 @@ namespace SyncfusionWinFormsApp3
                     batchID = parsedBatchID;
                 }
 
-                if (pdfIndex >= 0 && RecordExists(eventID, selectedFile, pdfIndex, batchID))
+                if (pdfIndex >= 0 && RecordExists(eventID, pdfIndex, currentBatchNumber, batchID))
                 {
-                    LoadFormData(eventID, selectedFile, pdfIndex, batchID);
+                    LoadFormData(eventID, pdfIndex, currentBatchNumber, batchID);
                 }
                 else
                 {
@@ -432,12 +435,18 @@ namespace SyncfusionWinFormsApp3
         {
             int eventID = ((Events)cboEvents.SelectedItem).EventID;
 
-            // Get the selected PDF file name
+            string pdfFileName = Path.GetFileNameWithoutExtension(listView.SelectedItems[0].Text);
+
+            pdfFileName = pdfFileName.Replace(" ", ""); // remove spaces
+         
+            string filePath = Path.Combine(DBfilePath, $"{pdfFileName}-{batchID}.pdf");
+
+
             string selectedPdf = listView.SelectedItems[0].Text;
 
             int pdfIndex = int.Parse(lblPdfIndex.Text.Split(' ')[2]);
 
-            bool recordExists = RecordExists(eventID, selectedPdf, pdfIndex, batchID);
+            bool recordExists = RecordExists(eventID, pdfIndex, currentBatchNumber, batchID);
 
             // Read data from your form fields, e.g.:
             DateTime date = dateTimePicker1.Value;
@@ -458,13 +467,13 @@ namespace SyncfusionWinFormsApp3
                 if (recordExists)
                 {
                     // UPDATE statement
-                    string updateQuery = "UPDATE ReceiptData SET Date = @Date, Vendor = @Vendor, Description = @Description, Category = @Category, Labor = @Labor, Rent = @Rent, Audio = @Audio, Video = @Video, Amount = @Amount, DataSaved = 1 WHERE EventID = @EventID AND PdfFileName = @PdfFileName AND BatchID = @BatchID AND PdfIndex = @PdfIndex";
+                    string updateQuery = "UPDATE ReceiptData SET Date = @Date, Vendor = @Vendor, Description = @Description, Category = @Category, Labor = @Labor, Rent = @Rent, Audio = @Audio, Video = @Video, Amount = @Amount, FilePath = @FilePath, DataSaved = 1 WHERE EventID = @EventID AND PdfFileName = @PdfFileName AND BatchID = @BatchID AND PdfIndex = @PdfIndex";
                     command = new SqlCommand(updateQuery, connection);
                 }
                 else
                 {
                     // INSERT statement
-                    string insertQuery = "INSERT INTO ReceiptData (EventID, Date, Vendor, Description, Category, Labor, Rent, Audio, Video, Amount, PdfFileName, DataSaved, BatchID, PdfIndex) VALUES (@EventID, @Date, @Vendor, @Description, @Category, @Labor, @Rent, @Audio, @Video, @Amount, @PdfFileName, 1, @BatchID, @PdfIndex)";
+                    string insertQuery = "INSERT INTO ReceiptData (EventID, Date, Vendor, Description, Category, Labor, Rent, Audio, Video, Amount, PdfFileName, DataSaved, BatchID, PdfIndex, FilePath) VALUES (@EventID, @Date, @Vendor, @Description, @Category, @Labor, @Rent, @Audio, @Video, @Amount, @PdfFileName, 1, @BatchID, @PdfIndex, @FilePath)";
                     command = new SqlCommand(insertQuery, connection);
                 }
 
@@ -482,6 +491,8 @@ namespace SyncfusionWinFormsApp3
                 command.Parameters.AddWithValue("@PdfFileName", selectedPdf);
                 command.Parameters.AddWithValue("@BatchID", batchID);
                 command.Parameters.AddWithValue("@PdfIndex", pdfIndex);
+                command.Parameters.AddWithValue("@FilePath", filePath);
+
                 //Console.WriteLine("batchID: " + batchID); // Add this line to print the batch ID value
                 command.ExecuteNonQuery();
             }
@@ -545,21 +556,25 @@ namespace SyncfusionWinFormsApp3
                 e.Handled = true;
             }
         }
-        private void LoadFormData(int eventID, string selectedPdf, int pdfIndex, int? batchID = null)
+        private void LoadFormData(int eventID, int pdfIndex, int currentBatchNumber, int? batchID = null)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                string checkQuery = "SELECT Date, Vendor, Description, Category, Labor, Rent, Audio, Video, Amount FROM ReceiptData WHERE EventID = @EventID AND PdfIndex = @PdfIndex AND DataSaved = 1";
+                string checkQuery = "SELECT Date, Vendor, Description, Category, Labor, Rent, Audio, Video, Amount " +
+                    "FROM ReceiptData rd " +
+                    "JOIN ReceiptBatch rb ON rd.BatchID = rb.BatchID " +
+                    "WHERE EventID = @EventID AND PdfIndex = @PdfIndex AND DataSaved = 1";
 
                 if (batchID.HasValue)
                 {
-                    checkQuery += " AND BatchID = @BatchID";
+                    checkQuery += " AND rd.BatchID = @BatchID";
                 }
+
 
                 SqlCommand checkCommand = new SqlCommand(checkQuery, connection);
                 checkCommand.Parameters.AddWithValue("@EventID", eventID);
-                checkCommand.Parameters.AddWithValue("@PdfFileName", selectedPdf);
+                checkCommand.Parameters.AddWithValue("@currentBatchNumber", currentBatchNumber);
                 checkCommand.Parameters.AddWithValue("@PdfIndex", pdfIndex);
 
                 if (batchID.HasValue)
@@ -584,12 +599,12 @@ namespace SyncfusionWinFormsApp3
                             txtAmount.Text = reader.GetDecimal(8).ToString();
                         }
                     }
-                    Console.WriteLine($"Loaded data for event {eventID}, file {selectedPdf}, index {pdfIndex}, batch {batchID}");
+                    //Console.WriteLine($"Loaded data for event {eventID}, index {pdfIndex}, batch {batchID}");
                 }
             }
         }
 
-        private bool RecordExists(int eventID, string fileName, int pdfIndex, int? batchID = null)
+        private bool RecordExists(int eventID, int pdfIndex, int currentBatchNumber, int? batchID = null)
         {
             bool exists = false;
 
@@ -597,18 +612,19 @@ namespace SyncfusionWinFormsApp3
             {
                 connection.Open();
 
-                string query = "SELECT COUNT(*) FROM ReceiptData WHERE EventID = @EventID AND PdfIndex = @PdfIndex AND DataSaved = 1";
+                string query = "SELECT COUNT(*) from ReceiptData rd join ReceiptBatch rb on rd.BatchID = rb.BatchID WHERE EventID = @EventID AND PdfIndex = @PdfIndex AND DataSaved = 1 and BatchNumber = @currentBatchNumber";
 
                 if (batchID.HasValue)
                 {
-                    query += " AND BatchID = @BatchID";
+                    query += " AND rb.BatchID = @BatchID";
                 }
 
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@EventID", eventID);
                 //command.Parameters.AddWithValue("@PdfFileName", fileName);
                 command.Parameters.AddWithValue("@PdfIndex", pdfIndex);
-               
+                command.Parameters.AddWithValue("@currentBatchNumber", currentBatchNumber);
+
 
                 if (batchID.HasValue)
                 {
@@ -717,6 +733,159 @@ namespace SyncfusionWinFormsApp3
             return newBatchID;
         }
 
+        private void btnSaveRepeat_Click(object sender, EventArgs e)
+        {
+            // Retrieve the batch ID
+            int? batchID = GetBatchID();
+
+            // Display an error message if the batch ID is null
+            if (!batchID.HasValue)
+            {
+                MessageBox.Show("Error: Unable to retrieve batch ID", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Save the form data
+            SaveFormData(batchID.Value);
+
+            // Populate the next form fields with values from existing form fields
+            PopulateFormFields();
+        }
+
+        private void PopulateFormFields()
+        {
+            // Read data from your form fields and store their values to variables
+            DateTime date = dateTimePicker1.Value;
+            string vendor = txtVendor.Text;
+            string description = txtDescription.Text;
+            string category = txtCategory.Text;
+            decimal.TryParse(txtLabor.Text, out decimal labor);
+            decimal.TryParse(txtRent.Text, out decimal rent);
+            decimal.TryParse(txtAudio.Text, out decimal audio);
+            decimal.TryParse(txtVideo.Text, out decimal video);
+            decimal.TryParse(txtAmount.Text, out decimal amount);
+
+            BtnNext_Click(this, EventArgs.Empty);
+
+            // Populate the form fields with the values from the stored variables
+            dateTimePicker1.Value = date;
+            txtVendor.Text = vendor;
+            txtDescription.Text = description;
+            txtCategory.Text = category;
+            txtLabor.Text = labor.ToString();
+            txtRent.Text = rent.ToString();
+            txtAudio.Text = audio.ToString();
+            txtVideo.Text = video.ToString();
+            txtAmount.Text = amount.ToString();
+        }
+
+        private void btnSubmitBatch_Click(object sender, EventArgs e)
+        {
+            // Retrieve the batch ID
+            int? batchID = GetBatchID();
+
+            // Display an error message if the batch ID or pdflist is null
+            if (!batchID.HasValue || pdfList == null || pdfList.Count == 0)
+            {
+                MessageBox.Show("Error: Unable to retrieve PDF list for batch", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+
+
+            // Save the form data
+            SaveFormData(batchID.Value);
+
+            // Get the list of PDF files for the batch
+            List<string> pdfList = GetPdfListForBatch((int)batchID);
+
+            // Check if the saved directory exists and create it if necessary
+            if (!string.IsNullOrEmpty(lblSavedDirectory.Text) && !Directory.Exists(lblSavedDirectory.Text))
+            {
+                Directory.CreateDirectory(lblSavedDirectory.Text);
+            }
+
+            // Copy the selected PDF files to the fixed directory and move them to the saved directory, if specified
+            foreach (string pdfPath in pdfList)
+            {
+                string sourceFilePath = Path.Combine(lblDirectoryPath.Text, Path.GetFileName(pdfPath));
+
+                // Get the PDF file name
+                string pdfFileName = Path.GetFileNameWithoutExtension(pdfPath);
+
+                // Create a unique file path for the copy of the PDF file
+                string uniqueFilePath = Path.Combine(DBfilePath, pdfFileName + "-" + batchID.Value.ToString() + ".pdf");
+
+                // Copy the PDF file to the unique file path
+                File.Copy(sourceFilePath, uniqueFilePath, true);
+
+                // Move the PDF file to the saved directory, if specified
+                if (!string.IsNullOrEmpty(lblSavedDirectory.Text))
+                {
+                    string savedFilePath = Path.Combine(lblSavedDirectory.Text, pdfFileName + ".pdf");
+                    File.Move(sourceFilePath, savedFilePath);
+                }
+            }
+
+            // Get the list of PDF files in the source directory
+            //List<string> fileList = Directory.GetFiles(lblDirectoryPath.Text, "*.pdf").ToList();
+
+            listView.SelectedItems.Clear();
+            listView.Items.Clear();
+            pdfFiles = Directory.GetFiles(directoryPath, "*.pdf");
+
+            foreach (string pdfFile in pdfFiles)
+            {
+                ListViewItem item = new ListViewItem(Path.GetFileName(pdfFile));
+                item.Tag = false; // false means data has not been entered yet
+                listView.Items.Add(item);
+
+            }
+
+            // Select the first item in the ListView
+            if (listView.Items.Count > 0)
+            {
+                listView.Items[0].Selected = true;
+                listView.Items[0].Focused = true;
+                listView.Select();
+                currentPdfIndex = 0;
+            }
+
+
+
+            // Display a message box indicating success
+            MessageBox.Show("Batch submitted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private List<string> GetPdfListForBatch(int batchID)
+        {
+            List<string> pdfList = new List<string>();
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand("SELECT PdfFileName FROM ReceiptData WHERE BatchID=@batchID AND DataSaved=1", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@batchID", batchID);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                pdfList.Add(reader.GetString(0));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // handle the exception here
+            }
+
+            return pdfList;
+        }
 
     }
 }
