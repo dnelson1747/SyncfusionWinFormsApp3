@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Windows.Forms;
 
 namespace SyncfusionWinFormsApp3
 {
@@ -14,6 +15,7 @@ namespace SyncfusionWinFormsApp3
         private int currentPdfIndex = 0;
         private int currentBatchNumber;
         private string DBfilePath = @"C:\Downloads\";
+        private string userID;
 
         public ReceiptApp()
         {
@@ -167,6 +169,25 @@ namespace SyncfusionWinFormsApp3
                     string firstPdfFile = pdfFiles[0];
                     string fullPath = Path.Combine(directoryPath, firstPdfFile);
                     pdfViewerControl1.Load(fullPath);
+                }
+            }
+            foreach (Control control in this.Controls)
+            {
+                if (control is TextBox)
+                {
+                    ((TextBox)control).TextChanged += textBox_TextChanged;
+                    ((TextBox)control).Enter += textBox_Enter;
+                    ((TextBox)control).Leave += textBox_Leave;
+                }
+                else if (control is ComboBox)
+                {
+                    ((ComboBox)control).Enter += comboBox_Enter;
+                    ((ComboBox)control).Leave += comboBox_Leave;
+                }
+                else if (control is DateTimePicker)
+                {
+                    ((DateTimePicker)control).Enter += dateTimePicker_Enter;
+                    ((DateTimePicker)control).Leave += dateTimePicker_Leave;
                 }
             }
         }
@@ -342,6 +363,7 @@ namespace SyncfusionWinFormsApp3
         }
         private void CboUsername_SelectedIndexChanged(object sender, EventArgs e)
         {
+
             string selectedUsername = cboUsername.SelectedItem?.ToString();
             if (string.IsNullOrEmpty(selectedUsername)) return;
 
@@ -361,7 +383,7 @@ namespace SyncfusionWinFormsApp3
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                string query = $"SELECT DefaultDirectoryPath, OutputDirectoryPath FROM Users WHERE Username = '{selectedUsername}'";
+                string query = $"SELECT DefaultDirectoryPath, OutputDirectoryPath, UserID FROM Users WHERE Username = '{selectedUsername}'";
                 SqlCommand command = new SqlCommand(query, connection);
                 SqlDataReader reader = command.ExecuteReader();
 
@@ -369,12 +391,15 @@ namespace SyncfusionWinFormsApp3
                 {
                     directoryPath = !reader.IsDBNull(0) ? reader.GetString(0) : null;
                     outputDirectoryPath = !reader.IsDBNull(1) ? reader.GetString(1) : null;
+                    userID = reader.GetInt32(2).ToString();
                 }
             }
 
             // Update the labels with the new directory paths
             lblDirectoryPath.Text = directoryPath;
             lblSavedDirectory.Text = outputDirectoryPath;
+            lblUserID.Text = userID;
+
 
             // Load the PDF files for the newly selected user
             listView.Items.Clear();
@@ -438,9 +463,10 @@ namespace SyncfusionWinFormsApp3
             string pdfFileName = Path.GetFileNameWithoutExtension(listView.SelectedItems[0].Text);
 
             pdfFileName = pdfFileName.Replace(" ", ""); // remove spaces
-         
+
             string filePath = Path.Combine(DBfilePath, $"{pdfFileName}-{batchID}.pdf");
 
+            int userID = int.Parse(lblUserID.Text);
 
             string selectedPdf = listView.SelectedItems[0].Text;
 
@@ -473,7 +499,7 @@ namespace SyncfusionWinFormsApp3
                 else
                 {
                     // INSERT statement
-                    string insertQuery = "INSERT INTO ReceiptData (EventID, Date, Vendor, Description, Category, Labor, Rent, Audio, Video, Amount, PdfFileName, DataSaved, BatchID, PdfIndex, FilePath) VALUES (@EventID, @Date, @Vendor, @Description, @Category, @Labor, @Rent, @Audio, @Video, @Amount, @PdfFileName, 1, @BatchID, @PdfIndex, @FilePath)";
+                    string insertQuery = "INSERT INTO ReceiptData (EventID, Date, Vendor, Description, Category, Labor, Rent, Audio, Video, Amount, PdfFileName, DataSaved, BatchID, PdfIndex, FilePath, UserID) VALUES (@EventID, @Date, @Vendor, @Description, @Category, @Labor, @Rent, @Audio, @Video, @Amount, @PdfFileName, 1, @BatchID, @PdfIndex, @FilePath, @UserID)";
                     command = new SqlCommand(insertQuery, connection);
                 }
 
@@ -492,6 +518,7 @@ namespace SyncfusionWinFormsApp3
                 command.Parameters.AddWithValue("@BatchID", batchID);
                 command.Parameters.AddWithValue("@PdfIndex", pdfIndex);
                 command.Parameters.AddWithValue("@FilePath", filePath);
+                command.Parameters.AddWithValue("@UserID", userID);
 
                 //Console.WriteLine("batchID: " + batchID); // Add this line to print the batch ID value
                 command.ExecuteNonQuery();
@@ -781,81 +808,77 @@ namespace SyncfusionWinFormsApp3
 
         private void btnSubmitBatch_Click(object sender, EventArgs e)
         {
-            // Retrieve the batch ID
-            int? batchID = GetBatchID();
-
-            // Display an error message if the batch ID or pdflist is null
-            if (!batchID.HasValue || pdfList == null || pdfList.Count == 0)
+            try
             {
-                MessageBox.Show("Error: Unable to retrieve PDF list for batch", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+                // Retrieve the batch ID
+                int? batchID = GetBatchID();
 
+                // Save the form data
+                SaveFormData(batchID.Value);
 
+                // Get the list of PDF files for the batch
+                List<string> pdfList = GetPdfListForBatch((int)batchID);
 
-            // Save the form data
-            SaveFormData(batchID.Value);
-
-            // Get the list of PDF files for the batch
-            List<string> pdfList = GetPdfListForBatch((int)batchID);
-
-            // Check if the saved directory exists and create it if necessary
-            if (!string.IsNullOrEmpty(lblSavedDirectory.Text) && !Directory.Exists(lblSavedDirectory.Text))
-            {
-                Directory.CreateDirectory(lblSavedDirectory.Text);
-            }
-
-            // Copy the selected PDF files to the fixed directory and move them to the saved directory, if specified
-            foreach (string pdfPath in pdfList)
-            {
-                string sourceFilePath = Path.Combine(lblDirectoryPath.Text, Path.GetFileName(pdfPath));
-
-                // Get the PDF file name
-                string pdfFileName = Path.GetFileNameWithoutExtension(pdfPath);
-
-                // Create a unique file path for the copy of the PDF file
-                string uniqueFilePath = Path.Combine(DBfilePath, pdfFileName + "-" + batchID.Value.ToString() + ".pdf");
-
-                // Copy the PDF file to the unique file path
-                File.Copy(sourceFilePath, uniqueFilePath, true);
-
-                // Move the PDF file to the saved directory, if specified
-                if (!string.IsNullOrEmpty(lblSavedDirectory.Text))
+                // Check if the saved directory exists and create it if necessary
+                if (!string.IsNullOrEmpty(lblSavedDirectory.Text) && !Directory.Exists(lblSavedDirectory.Text))
                 {
-                    string savedFilePath = Path.Combine(lblSavedDirectory.Text, pdfFileName + ".pdf");
-                    File.Move(sourceFilePath, savedFilePath);
+                    Directory.CreateDirectory(lblSavedDirectory.Text);
                 }
+
+                // Copy the selected PDF files to the fixed directory and move them to the saved directory, if specified
+                foreach (string pdfPath in pdfList)
+                {
+                    string sourceFilePath = Path.Combine(lblDirectoryPath.Text, Path.GetFileName(pdfPath));
+
+                    // Get the PDF file name
+                    string pdfFileName = Path.GetFileNameWithoutExtension(pdfPath);
+
+                    // Create a unique file path for the copy of the PDF file
+                    string uniqueFilePath = Path.Combine(DBfilePath, pdfFileName + "-" + batchID.Value.ToString() + ".pdf");
+
+                    // Copy the PDF file to the unique file path
+                    File.Copy(sourceFilePath, uniqueFilePath, true);
+
+                    // Move the PDF file to the saved directory, if specified
+                    if (!string.IsNullOrEmpty(lblSavedDirectory.Text))
+                    {
+                        string savedFilePath = Path.Combine(lblSavedDirectory.Text, pdfFileName + ".pdf");
+                        File.Move(sourceFilePath, savedFilePath);
+                    }
+                }
+
+                listView.SelectedItems.Clear();
+                listView.Items.Clear();
+                pdfFiles = Directory.GetFiles(directoryPath, "*.pdf");
+
+                foreach (string pdfFile in pdfFiles)
+                {
+                    ListViewItem item = new ListViewItem(Path.GetFileName(pdfFile));
+                    item.Tag = false; // false means data has not been entered yet
+                    listView.Items.Add(item);
+                }
+
+                // Select the first item in the ListView
+                if (listView.Items.Count > 0)
+                {
+                    listView.Items[0].Selected = true;
+                    listView.Items[0].Focused = true;
+                    listView.Select();
+                    currentPdfIndex = 0;
+                }
+
+                // Display a message box indicating success
+                MessageBox.Show("Batch submitted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                GetBatchID();
             }
-
-            // Get the list of PDF files in the source directory
-            //List<string> fileList = Directory.GetFiles(lblDirectoryPath.Text, "*.pdf").ToList();
-
-            listView.SelectedItems.Clear();
-            listView.Items.Clear();
-            pdfFiles = Directory.GetFiles(directoryPath, "*.pdf");
-
-            foreach (string pdfFile in pdfFiles)
+            catch (Exception ex)
             {
-                ListViewItem item = new ListViewItem(Path.GetFileName(pdfFile));
-                item.Tag = false; // false means data has not been entered yet
-                listView.Items.Add(item);
-
+                // handle the exception here
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            // Select the first item in the ListView
-            if (listView.Items.Count > 0)
-            {
-                listView.Items[0].Selected = true;
-                listView.Items[0].Focused = true;
-                listView.Select();
-                currentPdfIndex = 0;
-            }
-
-
-
-            // Display a message box indicating success
-            MessageBox.Show("Batch submitted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
 
         private List<string> GetPdfListForBatch(int batchID)
         {
@@ -881,11 +904,100 @@ namespace SyncfusionWinFormsApp3
             }
             catch (Exception ex)
             {
-                // handle the exception here
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             return pdfList;
         }
+
+        private void textBox_TextChanged(object sender, EventArgs e)
+        {
+            // Define a dictionary of textbox names and their corresponding label names
+            Dictionary<string, string> textBoxLabelPairs = new Dictionary<string, string>()
+            {
+                { "txtAmount", "lblAmount" },
+                { "txtVendor", "lblVendor" },
+                { "txtDescription", "lblDescription" },
+                { "txtCategory", "lblCategory" },
+                { "txtLabor", "lblLabor" },
+                { "txtRent", "lblRent" },
+                { "txtAudio", "lblAudio" },
+                { "txtVideo", "lblVideo" },
+                { "cboEvents", "lblEvents" },
+                { "dateTimePicker1", "lblDate" },
+            };
+
+            // Loop through the pairs and set the font color for each label
+            foreach (KeyValuePair<string, string> pair in textBoxLabelPairs)
+            {
+                Control[] textBoxMatches = this.Controls.Find(pair.Key, true);
+                Control[] labelMatches = this.Controls.Find(pair.Value, true);
+
+                if (textBoxMatches.Length > 0 && labelMatches.Length > 0 && textBoxMatches[0] is TextBox && labelMatches[0] is Label)
+                {
+                    TextBox textBox = (TextBox)textBoxMatches[0];
+                    Label label = (Label)labelMatches[0];
+
+                    if (textBox == sender)
+                    {
+                        label.ForeColor = Color.Red;
+                    }
+                    else
+                    {
+                        label.ForeColor = Color.Black;
+                    }
+                }
+            }
+        }
+
+        private void textBox_Enter(object sender, EventArgs e)
+        {
+            TextBox currTextBox = (TextBox)sender;
+            Label currLabel = (Label)this.Controls.Find("lbl" + currTextBox.Name.Substring(3), true).FirstOrDefault();
+
+            if (currLabel != null)
+            {
+                currLabel.ForeColor = Color.Red;
+            }
+        }
+
+        private void textBox_Leave(object sender, EventArgs e)
+        {
+            TextBox currTextBox = (TextBox)sender;
+            Label currLabel = (Label)this.Controls.Find("lbl" + currTextBox.Name.Substring(3), true).FirstOrDefault();
+
+            if (currLabel != null)
+            {
+                currLabel.ForeColor = Color.Black;
+            }
+        }
+        private void dateTimePicker_Enter(object sender, EventArgs e)
+        {
+            Label currLabel = (Label)this.Controls.Find("lblDate", true)[0];
+            currLabel.ForeColor = Color.Red;
+        }
+
+
+        private void dateTimePicker_Leave(object sender, EventArgs e)
+        {
+            Label currLabel = (Label)this.Controls.Find("lblDate", true)[0];
+            currLabel.ForeColor = Color.Black;
+        }
+
+        private void comboBox_Enter(object sender, EventArgs e)
+        {
+            ComboBox currComboBox = (ComboBox)sender;
+            Label currLabel = (Label)this.Controls.Find("lbl" + currComboBox.Name.Substring(3), true)[0];
+            currLabel.ForeColor = Color.Red;
+        }
+
+        private void comboBox_Leave(object sender, EventArgs e)
+        {
+            ComboBox currComboBox = (ComboBox)sender;
+            Label currLabel = (Label)this.Controls.Find("lbl" + currComboBox.Name.Substring(3), true)[0];
+            currLabel.ForeColor = Color.Black;
+        }
+
 
     }
 }

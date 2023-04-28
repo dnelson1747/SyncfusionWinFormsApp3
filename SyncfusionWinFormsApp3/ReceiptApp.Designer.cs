@@ -43,7 +43,7 @@
             cboUsername = new ComboBox();
             lblUser = new Label();
             cboEvents = new ComboBox();
-            lblEvent = new Label();
+            lblEvents = new Label();
             bannerTextProvider1 = new Syncfusion.Windows.Forms.BannerTextProvider(components);
             btnEditUser = new Button();
             lblAmount = new Label();
@@ -77,6 +77,8 @@
             lblBatchTime = new Label();
             lblBatchNumber = new Label();
             lblBatchID = new Label();
+            lblUserID = new Label();
+            label1 = new Label();
             SuspendLayout();
             // 
             // listView
@@ -142,6 +144,7 @@
             btnDirectoryPath.Name = "btnDirectoryPath";
             btnDirectoryPath.Size = new Size(68, 24);
             btnDirectoryPath.TabIndex = 4;
+            btnDirectoryPath.TabStop = false;
             btnDirectoryPath.Text = "Directory";
             btnDirectoryPath.UseVisualStyleBackColor = true;
             btnDirectoryPath.Click += btnDirectoryPath_Click;
@@ -152,6 +155,7 @@
             btnSavedDirectory.Name = "btnSavedDirectory";
             btnSavedDirectory.Size = new Size(68, 24);
             btnSavedDirectory.TabIndex = 6;
+            btnSavedDirectory.TabStop = false;
             btnSavedDirectory.Text = "Saved Directory";
             btnSavedDirectory.UseVisualStyleBackColor = true;
             btnSavedDirectory.Click += btnSavedDirectory_Click;
@@ -172,6 +176,7 @@
             cboUsername.Name = "cboUsername";
             cboUsername.Size = new Size(138, 23);
             cboUsername.TabIndex = 7;
+            cboUsername.TabStop = false;
             // 
             // lblUser
             // 
@@ -188,17 +193,17 @@
             cboEvents.Location = new Point(972, 486);
             cboEvents.Name = "cboEvents";
             cboEvents.Size = new Size(121, 23);
-            cboEvents.TabIndex = 9;
+            cboEvents.TabIndex = 14;
             cboEvents.Text = "Empty";
             // 
-            // lblEvent
+            // lblEvents
             // 
-            lblEvent.AutoSize = true;
-            lblEvent.Location = new Point(930, 489);
-            lblEvent.Name = "lblEvent";
-            lblEvent.Size = new Size(36, 15);
-            lblEvent.TabIndex = 10;
-            lblEvent.Text = "Event";
+            lblEvents.AutoSize = true;
+            lblEvents.Location = new Point(930, 489);
+            lblEvents.Name = "lblEvents";
+            lblEvents.Size = new Size(36, 15);
+            lblEvents.TabIndex = 10;
+            lblEvents.Text = "Event";
             // 
             // btnEditUser
             // 
@@ -206,6 +211,7 @@
             btnEditUser.Name = "btnEditUser";
             btnEditUser.Size = new Size(78, 25);
             btnEditUser.TabIndex = 12;
+            btnEditUser.TabStop = false;
             btnEditUser.Text = "Edit User";
             btnEditUser.UseVisualStyleBackColor = true;
             btnEditUser.Click += btnEditUser_Click;
@@ -224,7 +230,7 @@
             txtAmount.Location = new Point(606, 755);
             txtAmount.Name = "txtAmount";
             txtAmount.Size = new Size(123, 23);
-            txtAmount.TabIndex = 14;
+            txtAmount.TabIndex = 9;
             // 
             // lblCity
             // 
@@ -267,7 +273,7 @@
             txtVendor.Location = new Point(384, 665);
             txtVendor.Name = "txtVendor";
             txtVendor.Size = new Size(123, 23);
-            txtVendor.TabIndex = 20;
+            txtVendor.TabIndex = 2;
             // 
             // lblVendor
             // 
@@ -283,7 +289,7 @@
             txtCategory.Location = new Point(120, 710);
             txtCategory.Name = "txtCategory";
             txtCategory.Size = new Size(123, 23);
-            txtCategory.TabIndex = 22;
+            txtCategory.TabIndex = 4;
             // 
             // lblCategory
             // 
@@ -299,7 +305,7 @@
             txtDescription.Location = new Point(606, 665);
             txtDescription.Name = "txtDescription";
             txtDescription.Size = new Size(123, 23);
-            txtDescription.TabIndex = 24;
+            txtDescription.TabIndex = 3;
             // 
             // lblDescription
             // 
@@ -312,10 +318,11 @@
             // 
             // dateTimePicker1
             // 
+            dateTimePicker1.Format = DateTimePickerFormat.Short;
             dateTimePicker1.Location = new Point(99, 665);
             dateTimePicker1.Name = "dateTimePicker1";
-            dateTimePicker1.Size = new Size(211, 23);
-            dateTimePicker1.TabIndex = 25;
+            dateTimePicker1.Size = new Size(144, 23);
+            dateTimePicker1.TabIndex = 1;
             // 
             // lblDate
             // 
@@ -340,14 +347,14 @@
             txtAudio.Location = new Point(122, 752);
             txtAudio.Name = "txtAudio";
             txtAudio.Size = new Size(123, 23);
-            txtAudio.TabIndex = 28;
+            txtAudio.TabIndex = 7;
             // 
             // txtVideo
             // 
             txtVideo.Location = new Point(384, 755);
             txtVideo.Name = "txtVideo";
             txtVideo.Size = new Size(123, 23);
-            txtVideo.TabIndex = 30;
+            txtVideo.TabIndex = 8;
             // 
             // lblVideo
             // 
@@ -363,7 +370,7 @@
             txtRent.Location = new Point(606, 713);
             txtRent.Name = "txtRent";
             txtRent.Size = new Size(123, 23);
-            txtRent.TabIndex = 32;
+            txtRent.TabIndex = 6;
             // 
             // lblRent
             // 
@@ -379,7 +386,7 @@
             txtLabor.Location = new Point(384, 710);
             txtLabor.Name = "txtLabor";
             txtLabor.Size = new Size(123, 23);
-            txtLabor.TabIndex = 34;
+            txtLabor.TabIndex = 5;
             // 
             // lblLabor
             // 
@@ -395,7 +402,7 @@
             btnPrevious.Location = new Point(65, 803);
             btnPrevious.Name = "btnPrevious";
             btnPrevious.Size = new Size(94, 27);
-            btnPrevious.TabIndex = 35;
+            btnPrevious.TabIndex = 10;
             btnPrevious.Text = "Previous";
             btnPrevious.UseVisualStyleBackColor = true;
             // 
@@ -404,7 +411,7 @@
             btnNext.Location = new Point(192, 803);
             btnNext.Name = "btnNext";
             btnNext.Size = new Size(96, 27);
-            btnNext.TabIndex = 36;
+            btnNext.TabIndex = 11;
             btnNext.Text = "Next";
             btnNext.UseVisualStyleBackColor = true;
             // 
@@ -413,7 +420,7 @@
             btnSaveNext.Location = new Point(384, 803);
             btnSaveNext.Name = "btnSaveNext";
             btnSaveNext.Size = new Size(107, 27);
-            btnSaveNext.TabIndex = 37;
+            btnSaveNext.TabIndex = 12;
             btnSaveNext.Text = "Save and Next";
             btnSaveNext.UseVisualStyleBackColor = true;
             btnSaveNext.Click += btnSaveNext_Click;
@@ -423,7 +430,7 @@
             btnSaveRepeat.Location = new Point(523, 803);
             btnSaveRepeat.Name = "btnSaveRepeat";
             btnSaveRepeat.Size = new Size(111, 27);
-            btnSaveRepeat.TabIndex = 38;
+            btnSaveRepeat.TabIndex = 13;
             btnSaveRepeat.Text = "Save and Repeat";
             btnSaveRepeat.UseVisualStyleBackColor = true;
             btnSaveRepeat.Click += btnSaveRepeat_Click;
@@ -434,6 +441,7 @@
             btnSubmitBatch.Name = "btnSubmitBatch";
             btnSubmitBatch.Size = new Size(111, 27);
             btnSubmitBatch.TabIndex = 39;
+            btnSubmitBatch.TabStop = false;
             btnSubmitBatch.Text = "Submit Batch";
             btnSubmitBatch.UseVisualStyleBackColor = true;
             btnSubmitBatch.Click += btnSubmitBatch_Click;
@@ -474,11 +482,31 @@
             lblBatchID.TabIndex = 43;
             lblBatchID.Text = "Batch ID";
             // 
+            // lblUserID
+            // 
+            lblUserID.AutoSize = true;
+            lblUserID.Location = new Point(1042, 710);
+            lblUserID.Name = "lblUserID";
+            lblUserID.Size = new Size(41, 15);
+            lblUserID.TabIndex = 44;
+            lblUserID.Text = "UserID";
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(995, 710);
+            label1.Name = "label1";
+            label1.Size = new Size(47, 15);
+            label1.TabIndex = 45;
+            label1.Text = "UserID: ";
+            // 
             // ReceiptApp
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1127, 882);
+            Controls.Add(label1);
+            Controls.Add(lblUserID);
             Controls.Add(lblBatchID);
             Controls.Add(lblBatchNumber);
             Controls.Add(lblBatchTime);
@@ -511,7 +539,7 @@
             Controls.Add(txtAmount);
             Controls.Add(lblAmount);
             Controls.Add(btnEditUser);
-            Controls.Add(lblEvent);
+            Controls.Add(lblEvents);
             Controls.Add(cboEvents);
             Controls.Add(lblUser);
             Controls.Add(cboUsername);
@@ -539,7 +567,7 @@
         private ComboBox cboUsername;
         private Label lblUser;
         private ComboBox cboEvents;
-        private Label lblEvent;
+        private Label lblEvents;
         private Syncfusion.Windows.Forms.BannerTextProvider bannerTextProvider1;
         private Button btnEditUser;
         private Label lblAmount;
@@ -573,6 +601,8 @@
         private Label lblBatchTime;
         private Label lblBatchNumber;
         private Label lblBatchID;
+        private Label lblUserID;
+        private Label label1;
     }
 }
 
