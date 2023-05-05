@@ -18,7 +18,7 @@ namespace SyncfusionWinFormsApp3
         private int currentBatchNumber;
         private string DBfilePath = @"C:\Downloads\";
         private string userID;
-
+        
         public ReceiptApp()
         {
             InitializeComponent();
@@ -208,8 +208,7 @@ namespace SyncfusionWinFormsApp3
                 // Check if the selected file has data in the ReceiptData table
                 Events selectedEvent = cboEvents.SelectedItem as Events;
                 int eventID = selectedEvent.EventID;
-                decimal pdfIndex = currentPdfIndex + pdfIncrement;
-
+                string selectedPdf = listView.SelectedItems[0].Text;
 
                 // Get batch ID from the batch ID label
                 int? batchID = null;
@@ -219,18 +218,16 @@ namespace SyncfusionWinFormsApp3
                     batchID = parsedBatchID;
                 }
 
-                if (pdfIndex >= 0 && RecordExists(eventID, pdfIndex, currentBatchNumber, batchID))
+                if (RecordExists(eventID, selectedPdf, currentBatchNumber, batchID))
                 {
-                    LoadFormData(eventID, pdfIndex, currentBatchNumber, batchID);
+                    LoadFormData(eventID, selectedPdf, currentBatchNumber, batchID);
                 }
                 else
                 {
                     ClearFormFields();
                 }
                 
-                lblPdfIndex.Text = $"PDF Index: {currentPdfIndex + pdfIncrement}";
-
-                Console.WriteLine($"EventID: {eventID}, PdfIndex: {pdfIndex}, BatchID: {batchID}");
+                lblPdfIndex.Text = $"PDF Index: {currentPdfIndex + pdfIncrement}";              
 
             }
         }
@@ -507,7 +504,7 @@ namespace SyncfusionWinFormsApp3
 
             decimal pdfIndex = decimal.Parse(lblPdfIndex.Text.Split(' ')[2]);
 
-            bool recordExists = RecordExists(eventID, pdfIndex, currentBatchNumber, batchID);
+            bool recordExists = RecordExists(eventID, selectedPdf, currentBatchNumber, batchID);
 
             // Read data from your form fields, e.g.:
             DateTime date = dateTimePicker1.Value;
@@ -519,6 +516,18 @@ namespace SyncfusionWinFormsApp3
             decimal.TryParse(txtAudio.Text, out decimal audio);
             decimal.TryParse(txtVideo.Text, out decimal video);
             decimal.TryParse(txtAmount.Text, out decimal amount);
+            
+            int dataSaved = 0; 
+
+            if (amount > 0)
+            {
+                dataSaved = 2; // Data saved with amount > 0
+            }
+
+            else
+            {
+                dataSaved = 1; // Data saved no amount
+            }
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -528,13 +537,13 @@ namespace SyncfusionWinFormsApp3
                 if (recordExists)
                 {
                     // UPDATE statement
-                    string updateQuery = "UPDATE ReceiptData SET Date = @Date, Vendor = @Vendor, Description = @Description, Category = @Category, Labor = @Labor, Rent = @Rent, Audio = @Audio, Video = @Video, Amount = @Amount, FilePath = @FilePath, DataSaved = 1 WHERE EventID = @EventID AND PdfFileName = @PdfFileName AND BatchID = @BatchID";
+                    string updateQuery = "UPDATE ReceiptData SET Date = @Date, Vendor = @Vendor, Description = @Description, Category = @Category, Labor = @Labor, Rent = @Rent, Audio = @Audio, Video = @Video, Amount = @Amount, FilePath = @FilePath, DataSaved = @DataSaved WHERE EventID = @EventID AND PdfFileName = @PdfFileName AND BatchID = @BatchID";
                     command = new SqlCommand(updateQuery, connection);
                 }
                 else
                 {
                     // INSERT statement
-                    string insertQuery = "INSERT INTO ReceiptData (EventID, Date, Vendor, Description, Category, Labor, Rent, Audio, Video, Amount, PdfFileName, DataSaved, BatchID, PdfIndex, FilePath, UserID) VALUES (@EventID, @Date, @Vendor, @Description, @Category, @Labor, @Rent, @Audio, @Video, @Amount, @PdfFileName, 1, @BatchID, @PdfIndex, @FilePath, @UserID)";
+                    string insertQuery = "INSERT INTO ReceiptData (EventID, Date, Vendor, Description, Category, Labor, Rent, Audio, Video, Amount, PdfFileName, DataSaved, BatchID, PdfIndex, FilePath, UserID) VALUES (@EventID, @Date, @Vendor, @Description, @Category, @Labor, @Rent, @Audio, @Video, @Amount, @PdfFileName, @DataSaved, @BatchID, @PdfIndex, @FilePath, @UserID)";
                     command = new SqlCommand(insertQuery, connection);
                 }
 
@@ -554,6 +563,7 @@ namespace SyncfusionWinFormsApp3
                 command.Parameters.AddWithValue("@PdfIndex", pdfIndex);
                 command.Parameters.AddWithValue("@FilePath", filePath);
                 command.Parameters.AddWithValue("@UserID", userID);
+                command.Parameters.AddWithValue("@DataSaved", dataSaved);
 
                 //Console.WriteLine("batchID: " + batchID); // Add this line to print the batch ID value
                 command.ExecuteNonQuery();
@@ -562,7 +572,7 @@ namespace SyncfusionWinFormsApp3
 
             // Change the font color of the ListView item
             int selectedIndex = listView.SelectedIndices[0];
-            UpdateListViewItemColor(listView.Items[selectedIndex]);
+            UpdateListViewItemColor(listView.Items[selectedIndex], dataSaved);
 
             // Disable the listView1.SelectedIndexChanged event to prevent re-triggering
             listView.SelectedIndexChanged -= listView1_SelectedIndexChanged;
@@ -644,7 +654,7 @@ namespace SyncfusionWinFormsApp3
                 e.Handled = true;
             }
         }
-        private void LoadFormData(int eventID, decimal pdfIndex, int currentBatchNumber, int? batchID = null)
+        private void LoadFormData(int eventID, string selectedPdf, int currentBatchNumber, int? batchID = null)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -652,7 +662,7 @@ namespace SyncfusionWinFormsApp3
                 string checkQuery = "SELECT Date, Vendor, Description, Category, Labor, Rent, Audio, Video, Amount " +
                     "FROM ReceiptData rd " +
                     "JOIN ReceiptBatch rb ON rd.BatchID = rb.BatchID " +
-                    "WHERE EventID = @EventID AND BatchNumber = @currentBatchNumber AND DataSaved >= 1";
+                    "WHERE EventID = @EventID AND BatchNumber = @currentBatchNumber AND DataSaved >= 1 and PdfFileName = @PdfFileName";
 
                 if (batchID.HasValue)
                 {
@@ -663,7 +673,7 @@ namespace SyncfusionWinFormsApp3
                 SqlCommand checkCommand = new SqlCommand(checkQuery, connection);
                 checkCommand.Parameters.AddWithValue("@EventID", eventID);
                 checkCommand.Parameters.AddWithValue("@currentBatchNumber", currentBatchNumber);
-                checkCommand.Parameters.AddWithValue("@PdfIndex", pdfIndex);
+                checkCommand.Parameters.AddWithValue("@PdfFileName", selectedPdf);
 
                 if (batchID.HasValue)
                 {
@@ -687,12 +697,12 @@ namespace SyncfusionWinFormsApp3
                             txtAmount.Text = reader.GetDecimal(8).ToString();
                         }
                     }
-                    Console.WriteLine($"Loaded data for event {eventID}, index {pdfIndex}, batch {batchID}, batchNumber {currentBatchNumber} ");
+
                 }
             }
         }
 
-        private bool RecordExists(int eventID, decimal pdfIndex, int currentBatchNumber, int? batchID = null)
+        private bool RecordExists(int eventID, string selectedPdf, int currentBatchNumber, int? batchID = null)
         {
             bool exists = false;
 
@@ -700,7 +710,7 @@ namespace SyncfusionWinFormsApp3
             {
                 connection.Open();
 
-                string query = "SELECT COUNT(*) from ReceiptData rd join ReceiptBatch rb on rd.BatchID = rb.BatchID WHERE EventID = @EventID AND DataSaved >= 1 and BatchNumber = @currentBatchNumber";
+                string query = "SELECT COUNT(*) from ReceiptData rd join ReceiptBatch rb on rd.BatchID = rb.BatchID WHERE EventID = @EventID AND DataSaved >= 1 and BatchNumber = @currentBatchNumber and PdfFileName = @PdfFileName";
 
                 if (batchID.HasValue)
                 {
@@ -710,7 +720,7 @@ namespace SyncfusionWinFormsApp3
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@EventID", eventID);
                 //command.Parameters.AddWithValue("@PdfFileName", fileName);
-                command.Parameters.AddWithValue("@PdfIndex", pdfIndex);
+                command.Parameters.AddWithValue("@PdfFileName", selectedPdf);
                 command.Parameters.AddWithValue("@currentBatchNumber", currentBatchNumber);
 
 
@@ -724,7 +734,7 @@ namespace SyncfusionWinFormsApp3
                 {
                     exists = true;
                 }
-                Console.WriteLine($"Loaded data for event {eventID}, index {pdfIndex}, batch {batchID}, batchNumber {currentBatchNumber} ");
+                Console.WriteLine($"Loaded data for event {eventID}, filename {selectedPdf}, batch {batchID}, batchNumber {currentBatchNumber} ");
 
             }
 
@@ -958,19 +968,12 @@ namespace SyncfusionWinFormsApp3
                 pdfIncrement += 0.001m;
 
                 // Update lblPdfIndex
-                lblPdfIndex.Text = $"PDF Index: {currentPdfIndex + pdfIncrement}";
+                lblPdfIndex.Text = $"PDF Index: {currentPdfIndex + pdfIncrement}";                
+
+                // Color the remaining PDF files
+                ColorRemainingPdfFiles((int)batchID);
 
                 listView1_SelectedIndexChanged(sender, new EventArgs());
-
-                // Call the UpdateListViewItemColor() function after saving the data
-                foreach (ListViewItem item in listView.Items)
-                {
-                    if ((bool)item.Tag && item.ForeColor != Color.Green)
-                    {
-                        UpdateListViewItemColor(item);
-                    }
-                }
-
 
             }
             catch (Exception ex)
@@ -989,7 +992,7 @@ namespace SyncfusionWinFormsApp3
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    using (SqlCommand cmd = new SqlCommand("SELECT PdfFileName FROM ReceiptData WHERE BatchID=@batchID AND DataSaved=1 AND Amount > 0", conn))
+                    using (SqlCommand cmd = new SqlCommand("SELECT PdfFileName FROM ReceiptData WHERE BatchID=@batchID AND DataSaved=2", conn))
                     {
                         cmd.Parameters.AddWithValue("@batchID", batchID);
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -1001,8 +1004,8 @@ namespace SyncfusionWinFormsApp3
                         }
                     }
 
-                    // Update DataSaved to 2 where Amount is not greater than 0
-                    using (SqlCommand cmdUpdate = new SqlCommand("UPDATE ReceiptData SET DataSaved=2, PdfIndex=.5001 WHERE BatchID=@batchID AND DataSaved=1 AND Amount <= 0", conn))
+                    // Update DataSaved to 3 where Amount is not greater than 0
+                    using (SqlCommand cmdUpdate = new SqlCommand("UPDATE ReceiptData SET DataSaved=3, PdfIndex=.5001 WHERE BatchID=@batchID AND DataSaved=1 AND Amount <= 0", conn))
                     {
                         cmdUpdate.Parameters.AddWithValue("@batchID", batchID);
                         cmdUpdate.ExecuteNonQuery();
@@ -1118,17 +1121,17 @@ namespace SyncfusionWinFormsApp3
                    string.IsNullOrWhiteSpace(txtAmount.Text);
         }
 
-        private void UpdateListViewItemColor(ListViewItem item)
+        private void UpdateListViewItemColor(ListViewItem item, int dataSaved)
         {
             if (item == null || item.SubItems.Count == 0)
             {
                 return; // Exit the method if the item is null or has no subitems
             }
 
-            ListViewItem.ListViewSubItem subItem = item.SubItems[item.SubItems.Count - 1]; // Get the last subitem
+            int index = item.SubItems.Count - 1; // Get the second last subitem
+            ListViewItem.ListViewSubItem subItem = item.SubItems[index];
 
-            // Change the font color based on the amount value
-            if (decimal.TryParse(subItem.Text, out decimal amount) && amount > 0)
+            if (dataSaved == 2)
             {
                 item.ForeColor = Color.Green;
             }
@@ -1137,7 +1140,41 @@ namespace SyncfusionWinFormsApp3
                 item.ForeColor = Color.Orange;
             }
 
-            item.Tag = true; // Set the tag to indicate that data has been saved
+        }
+        private void ColorRemainingPdfFiles(int batchID)
+        {
+   
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string selectQuery = "SELECT PdfFileName FROM ReceiptData WHERE BatchID=@batchID AND DataSaved=3";
+                SqlCommand selectCommand = new SqlCommand(selectQuery, connection);
+                selectCommand.Parameters.AddWithValue("@batchID", batchID);
+
+                using (SqlDataReader reader = selectCommand.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string pdfFileName = reader.GetString(0);
+
+                        foreach (ListViewItem item in listView.Items)
+                        {
+                            if (item.Text == pdfFileName)
+                            {
+                                item.ForeColor = Color.Orange;
+                            }
+                        }
+                        // Turn all labels black except lblDate
+                        foreach (Control control in this.Controls)
+                        {
+                            if (control is Label && control.Name != "lblDate")
+                            {
+                                control.ForeColor = Color.Black;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
 
