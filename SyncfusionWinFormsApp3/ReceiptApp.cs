@@ -441,11 +441,26 @@ namespace SyncfusionWinFormsApp3
         {
             if (listView.SelectedIndices.Count > 0 && listView.SelectedIndices[0] > 0)
             {
-                int previousIndex = listView.SelectedIndices[0] - 1;
-                listView.Items[listView.SelectedIndices[0]].Selected = false;
-                listView.Items[previousIndex].Selected = true;
-                listView.Items[previousIndex].Focused = true;
-                listView.EnsureVisible(previousIndex);
+                // Get the selected item index and the previous item index
+                int selectedItemIndex = listView.SelectedIndices[0];
+                int previousItemIndex = selectedItemIndex - 1;
+
+                // Select the previous item
+                listView.Items[selectedItemIndex].Selected = false;
+                listView.Items[previousItemIndex].Selected = true;
+                listView.Items[previousItemIndex].Focused = true;
+                listView.EnsureVisible(previousItemIndex);
+
+                // Get the new selectedPdf and batchID values
+                string selectedPdf = listView.SelectedItems[0].Text;
+                int? batchID = null;
+                var batchParts = lblBatchID.Text.Split(' ');
+                if (batchParts.Length >= 3 && int.TryParse(batchParts[2], out int parsedBatchID))
+                {
+                    batchID = parsedBatchID;
+                }
+                int currentBatchNumber = int.Parse(lblBatchNumber.Text.Split(' ')[2].Trim());
+                int eventID = ((Events)cboEvents.SelectedItem).EventID;
 
                 // Turn all labels black except lblDate
                 foreach (Control control in this.Controls)
@@ -455,12 +470,78 @@ namespace SyncfusionWinFormsApp3
                         control.ForeColor = Color.Black;
                     }
                 }
-                ClearFormFields();
+
+                // Check if a record exists in the database for the selected PDF file
+                bool recordExists = RecordExists(eventID, selectedPdf, currentBatchNumber, batchID);
+
+                if (recordExists)
+                {
+                    // Load the data from the database for the selected PDF file
+                    LoadFormData(eventID, selectedPdf, currentBatchNumber, batchID);
+                }
+                else
+                {
+                    // Clear the form fields if no data exists in the database for the selected PDF file
+                    ClearFormFields();
+                }
             }
         }
 
+
         private void BtnNext_Click(object sender, EventArgs e)
         {
+
+            if (listView.SelectedIndices.Count > 0 && listView.SelectedIndices[0] < listView.Items.Count - 1)
+            {
+                // Get the selected item index and the previous item index
+                int selectedItemIndex = listView.SelectedIndices[0];
+                int previousItemIndex = selectedItemIndex + 1;
+
+                // Select the previous item
+                listView.Items[selectedItemIndex].Selected = false;
+                listView.Items[previousItemIndex].Selected = true;
+                listView.Items[previousItemIndex].Focused = true;
+                listView.EnsureVisible(previousItemIndex);
+
+                // Get the new selectedPdf and batchID values
+                string selectedPdf = listView.SelectedItems[0].Text;
+                int? batchID = null;
+                var batchParts = lblBatchID.Text.Split(' ');
+                if (batchParts.Length >= 3 && int.TryParse(batchParts[2], out int parsedBatchID))
+                {
+                    batchID = parsedBatchID;
+                }
+                int currentBatchNumber = int.Parse(lblBatchNumber.Text.Split(' ')[2].Trim());
+                int eventID = ((Events)cboEvents.SelectedItem).EventID;
+
+                // Turn all labels black except lblDate
+                foreach (Control control in this.Controls)
+                {
+                    if (control is Label && control.Name != "lblDate")
+                    {
+                        control.ForeColor = Color.Black;
+                    }
+                }
+
+                // Check if a record exists in the database for the selected PDF file
+                bool recordExists = RecordExists(eventID, selectedPdf, currentBatchNumber, batchID);
+
+                if (recordExists)
+                {
+                    // Load the data from the database for the selected PDF file
+                    LoadFormData(eventID, selectedPdf, currentBatchNumber, batchID);
+                }
+                else
+                {
+                    // Clear the form fields if no data exists in the database for the selected PDF file
+                    ClearFormFields();
+                }
+            }
+        }
+
+        private void NextItem(object sender, EventArgs e)
+        {
+
             if (listView.SelectedIndices.Count > 0 && listView.SelectedIndices[0] < listView.Items.Count - 1)
             {
                 int nextIndex = listView.SelectedIndices[0] + 1;
@@ -474,7 +555,7 @@ namespace SyncfusionWinFormsApp3
                 {
                     if (control is Label && control.Name != "lblDate")
                     {
-                        control.ForeColor = Color.Black;                        
+                        control.ForeColor = Color.Black;
                     }
                 }
                 ClearFormFields();
@@ -622,7 +703,7 @@ namespace SyncfusionWinFormsApp3
             SaveFormData(batchID.Value);
 
             // Go to the next PDF
-            BtnNext_Click(sender, e);
+            NextItem(sender,e);
 
             // Clear the form fields
             ClearFormFields();
@@ -698,6 +779,14 @@ namespace SyncfusionWinFormsApp3
                         }
                     }
 
+                }
+
+            }
+            foreach (Control control in this.Controls)
+            {
+                if (control is Label && control.Name != "lblDate")
+                {
+                    control.ForeColor = Color.Black;
                 }
             }
         }
@@ -879,7 +968,7 @@ namespace SyncfusionWinFormsApp3
             decimal.TryParse(txtVideo.Text, out decimal video);
             decimal.TryParse(txtAmount.Text, out decimal amount);
 
-            BtnNext_Click(this, EventArgs.Empty);
+            NextItem(this, EventArgs.Empty);
 
             // Populate the form fields with the values from the stored variables
             dateTimePicker1.Value = date;
@@ -1176,8 +1265,6 @@ namespace SyncfusionWinFormsApp3
                 }
             }
         }
-
-
 
     }
 }
